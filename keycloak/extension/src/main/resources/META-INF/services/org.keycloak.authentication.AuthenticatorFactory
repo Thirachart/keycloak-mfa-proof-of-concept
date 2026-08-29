@@ -1,0 +1,3 @@
+poc.keycloak.MfaMethodSelectorAuthenticatorFactory
+poc.keycloak.TrustedDeviceConditionAuthenticatorFactory
+poc.keycloak.TrustedDeviceRecorderAuthenticatorFactory

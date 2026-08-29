@@ -1,0 +1,10 @@
+body { background: #f6f7f9 !important; }
+.pf-v5-c-login__main, .pf-c-login__main { border-radius: 18px !important; box-shadow: 0 14px 40px rgba(0,0,0,.08) !important; }
+#kc-header-wrapper { font-weight: 700 !important; letter-spacing: .01em !important; }
+.poc-mfa-intro { margin-bottom: 16px; color: #5f6b7a; }
+.poc-mfa-option { display: flex; gap: 12px; align-items: flex-start; border: 1px solid #d7dce2; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; cursor: pointer; background: #fff; }
+.poc-mfa-option input { margin-top: 3px; }
+.poc-mfa-option strong, .poc-mfa-option small { display: block; }
+.poc-mfa-option small { margin-top: 4px; color: #6a7480; line-height: 1.4; }
+.poc-mfa-disabled { opacity: .48; cursor: not-allowed; background: #f4f5f6; }
+.poc-mfa-actions { margin-top: 18px; }

@@ -1,0 +1,11 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: poc-app
+    url: http://oauth2-proxy:4180
+    routes:
+      - name: poc-app-route
+        paths:
+          - /
+        strip_path: false

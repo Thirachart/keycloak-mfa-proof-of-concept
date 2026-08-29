@@ -1,0 +1,45 @@
+{
+  "realm": "external-idp",
+  "enabled": true,
+  "displayName": "External Identity Provider Lab",
+  "loginTheme": "lab-idp",
+  "registrationAllowed": false,
+  "verifyEmail": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "clients": [
+    {
+      "clientId": "poc-broker",
+      "name": "PoC Realm Broker",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "poc-broker-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:18080/realms/poc/broker/lab-idp/endpoint"
+      ],
+      "webOrigins": ["http://localhost:18080"]
+    }
+  ],
+  "users": [
+    {
+      "username": "external-demo",
+      "enabled": true,
+      "email": "demo@example.com",
+      "emailVerified": true,
+      "firstName": "External",
+      "lastName": "Demo",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "external1234",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

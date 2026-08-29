@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Email 2FA PoC</title>
+  <style>
+    body{font-family:system-ui,sans-serif;max-width:900px;margin:40px auto;padding:0 20px;background:#f7f7f8;color:#222}
+    .card{background:white;border:1px solid #ddd;border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:0 4px 18px #0000000d}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.item{padding:14px;border:1px solid #e5e5e5;border-radius:12px}.label{font-size:13px;color:#666;margin-bottom:6px}.value{font-weight:650;word-break:break-word}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#eee;font-weight:650}.ok{background:#dff6e5}.warn{background:#fff1c9}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}a.button{display:inline-block;padding:10px 16px;border-radius:10px;background:#222;color:white;text-decoration:none}a.secondary{background:#ececec;color:#222}
+    pre{white-space:pre-wrap;word-break:break-word;background:#111;color:#eee;padding:16px;border-radius:12px;overflow:auto}
+  </style>
+</head>
+<body>
+  <h1>Email 2FA PoC</h1>
+  <div class="card">
+    <div class="grid">
+      <div class="item"><div class="label">User</div><div id="identity" class="value">loading...</div></div>
+      <div class="item"><div class="label">Email verification</div><span id="verifyBadge" class="badge">loading...</span><div id="verifiedAt" class="label"></div></div>
+      <div class="item"><div class="label">External IdP account</div><span id="idpBadge" class="badge">loading...</span><div id="idpLinkedAt" class="label"></div></div>
+      <div class="item"><div class="label">Signed in using</div><div id="loginProvider" class="value">loading...</div></div>
+      <div class="item"><div class="label">MFA method</div><div id="mfaMethod" class="value">loading...</div></div>
+    </div>
+    <div class="actions">
+      <a id="verifyEmailAction" class="button" href="/oauth2/start?rd=http%3A%2F%2Flocalhost%3A8000%2F&kc_action=VERIFY_EMAIL">Verify email</a>
+      <a class="button secondary" href="http://localhost:18080/realms/poc/account/#/linked-accounts">Manage linked accounts</a>
+      <a class="button secondary" href="/oauth2/sign_out?rd=http%3A%2F%2Flocalhost%3A8000%2F">Sign out</a>
+    </div>
+  </div>
+  <div class="card">
+    <strong>Decoded token payload (backend, no validation)</strong>
+    <pre id="claims">loading...</pre>
+  </div>
+<script>
+function formatTimestamp(value) {
+  if (!value) return 'date unavailable';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+}
+
+(async () => {
+  try {
+    const response = await fetch('/api/me', { credentials: 'same-origin' });
+    const me = await response.json();
+    document.getElementById('identity').textContent = `${me.preferredUsername || me.subject || 'unknown'} · ${me.email || 'no email'}`;
+
+    const verifyBadge = document.getElementById('verifyBadge');
+    const verifyEmailAction = document.getElementById('verifyEmailAction');
+
+    if (!me.email) {
+      verifyBadge.textContent = 'NO EMAIL';
+      verifyBadge.classList.add('warn');
+      document.getElementById('verifiedAt').textContent = 'Add an email address before verification.';
+      verifyEmailAction.textContent = 'Add email first';
+      verifyEmailAction.href = 'http://localhost:18080/realms/poc/account/#/personal-info';
+    } else if (me.emailVerified === true) {
+      verifyBadge.textContent = 'VERIFIED';
+      verifyBadge.classList.add('ok');
+      document.getElementById('verifiedAt').textContent = `Verified at: ${formatTimestamp(me.emailVerifiedAt)}`;
+      verifyEmailAction.style.display = 'none';
+    } else {
+      verifyBadge.textContent = 'NOT VERIFIED';
+      verifyBadge.classList.add('warn');
+      document.getElementById('verifiedAt').textContent = '';
+      verifyEmailAction.textContent = 'Verify email';
+    }
+
+    const idpBadge = document.getElementById('idpBadge');
+    idpBadge.textContent = me.externalIdpLinked === true ? 'LINKED' : 'NOT LINKED';
+    idpBadge.classList.add(me.externalIdpLinked === true ? 'ok' : 'warn');
+    document.getElementById('idpLinkedAt').textContent = me.externalIdpLinked === true ? `Linked at: ${formatTimestamp(me.externalIdpLinkedAt)}` : '';
+
+    document.getElementById('loginProvider').textContent = me.loginProvider || 'local';
+    const mfaLabels = {
+      email: 'Email OTP',
+      trusted_device: 'Trusted browser (OTP skipped)',
+      trusted_account: 'Trusted account (OTP skipped on all devices)'
+    };
+    document.getElementById('mfaMethod').textContent = mfaLabels[me.mfaMethod] || me.mfaMethod || 'Not used';
+    document.getElementById('claims').textContent = JSON.stringify(me, null, 2);
+  } catch (e) {
+    document.getElementById('claims').textContent = String(e);
+  }
+})();
+</script>
+</body>
+</html>
