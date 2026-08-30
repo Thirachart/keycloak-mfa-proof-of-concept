@@ -85,6 +85,11 @@ services:
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      # Brokered OIDC sessions can make oauth2-proxy emit several large Set-Cookie headers.
+      # Keep Kong from rejecting a successful OAuth callback with "upstream sent too big header".
+      KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: "64k"
+      KONG_NGINX_PROXY_PROXY_BUFFERS: "8 64k"
+      KONG_NGINX_PROXY_PROXY_BUSY_BUFFERS_SIZE: "128k"
     volumes:
       - ./kong/kong.yml:/kong/declarative/kong.yml:ro
     depends_on:

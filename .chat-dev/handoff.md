@@ -80,7 +80,9 @@
 - The latest temporary user `button-no-email-test` was disabled after testing; earlier temporary E2E users were deleted.
 - Runtime was restored to default device trust (`TrustedDeviceEnabled=true`, 30 days), lab IdP `require_mfa_after_broker=false`, and Phase 1.
 
+- External IdP login now passes end-to-end in a fresh Chrome profile: main realm -> `lab-idp` -> `external-idp` credentials -> broker callback -> application. Kong response buffers were raised because oauth2-proxy's brokered session cookies made the callback response headers exceed the default proxy buffer and caused HTTP 502 (`upstream sent too big header`).
+- Runtime and clean realm configuration now enable ID/access/userinfo/introspection inclusion for the custom `external idp linked` protocol mapper. Fresh External IdP login returns `external_idp_linked=true`, `login_provider=lab-idp`, `/api/me` 200, and the UI shows `LINKED`.
+
 ## Remaining manual browser checks
 
-- Complete the final First Broker Login ownership verification for `demo` and confirm `external_idp_linked=true`, `external_idp_linked_at`, and `login_provider=lab-idp`. Automated broker testing reaches the ownership-verification step; `demo` is intentionally still unverified and therefore Keycloak requires its Verify Email step before linking completes.
 - Browser-visual confirmation of the exact rendered appearance remains manual; HTTP E2E verified the pages/forms and flow transitions.

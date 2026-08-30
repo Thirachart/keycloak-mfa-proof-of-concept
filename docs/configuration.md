@@ -28,6 +28,7 @@ OIDC client: `poc-app`
 - confidential client
 - callback: `http://localhost:8000/oauth2/callback`
 - web origin: `http://localhost:8000`
+- custom `external idp linked` mapper includes `external_idp_linked` in ID, access, userinfo, and introspection tokens; the inclusion flags must be enabled or the mapper is skipped even though the federated identity exists
 
 SMTP:
 - host: `mailpit`
@@ -59,6 +60,13 @@ Kong runs DB-less with `kong/kong.yml` and exposes:
 - admin: `http://localhost:8001`
 
 The PoC uses a single catch-all service pointing to oauth2-proxy.
+
+Brokered OIDC login can produce several large oauth2-proxy `Set-Cookie` response headers. Kong therefore raises the proxy response buffers in `docker-compose.yml`:
+- `KONG_NGINX_PROXY_PROXY_BUFFER_SIZE=64k`
+- `KONG_NGINX_PROXY_PROXY_BUFFERS=8 64k`
+- `KONG_NGINX_PROXY_PROXY_BUSY_BUFFERS_SIZE=128k`
+
+Without these settings a successful External IdP callback can be converted into HTTP 502 by Kong with `upstream sent too big header while reading response header`.
 
 ## Frontend
 

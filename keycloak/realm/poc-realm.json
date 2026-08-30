@@ -58,7 +58,12 @@
           "protocol": "openid-connect",
           "protocolMapper": "poc-external-idp-linked-mapper",
           "consentRequired": false,
-          "config": {}
+          "config": {
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
         },
         {
           "name": "external idp linked at",
