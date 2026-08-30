@@ -19,6 +19,7 @@
   - device mode prunes expired records and retains max 10 active browser records per user.
   - password/email changes clear both device and account-wide trust.
 - Added `scripts/clear-mfa-trust.ps1 -Username <user>` for admin/test revocation.
+- Added `scripts/require-email-verification.ps1 -Username <user>` for user-specific email enrollment. If email is missing it adds `UPDATE_PROFILE`; while email remains unverified it also adds `VERIFY_EMAIL`, then logs out existing sessions by default so the next login is blocked in Keycloak until the required actions complete.
 - Added simulated external OIDC IdP using second Keycloak realm `external-idp`.
 - Added distinct themes `poc-main` and `lab-idp`.
 - Built-in Keycloak `browser` remains unchanged.
@@ -39,33 +40,47 @@
 
 ## Verified
 
-- `docker compose build keycloak` passes with new custom providers.
-- Stack starts successfully.
-- `configure-auth-flows.ps1` creates the new Phase 2 and post-broker trusted MFA flows.
-- `configure-auth-flows.ps1` was rerun successfully after fixing idempotent subflow detection; no duplicate flow error on rerun.
-- Runtime Phase 2 local flow hierarchy verified:
-  - `poc-phase2-trusted-mfa` = CONDITIONAL;
-  - `PoC Trusted Device Condition` = CONDITIONAL;
-  - `PoC MFA Method Selector` = REQUIRED;
-  - `Email OTP` = REQUIRED;
-  - `PoC Trusted Device Recorder` = REQUIRED.
-- MFA trust configs verified through Admin REST in account mode: condition has `trustedDeviceEnabled=false`; recorder has `trustedDeviceEnabled=false` and `trustDays=30`.
-- Reconfigured back to default device mode with `TrustedDeviceEnabled=true`, `TrustDays=30` after verification.
-- Post-broker flow hierarchy verified with the same condition -> selector -> Email OTP -> recorder sequence.
-- Phase 2 runtime binding verified: `browserFlow=poc-phase2-browser-v3` and `passwordPolicy=forceExpiredPasswordChange(180)`.
-- External IdP config verified both ways:
-  - `require_mfa_after_broker=false` clears post-broker flow;
-  - `true` binds `poc-external-idp-post-login-phase2-v2`.
-- `clear-mfa-trust.ps1 -Username demo` runs successfully when no trusted records exist.
-- Runtime was restored to lab IdP `require_mfa_after_broker=false` and Phase 1 after validation.
+- `docker compose build keycloak` passes with the custom providers and `docker compose config --quiet` passes.
+- All services are running; Kong, Mailpit and PostgreSQL report healthy.
+- Full Phase 1 local login was exercised over HTTP through Kong -> oauth2-proxy -> Keycloak -> frontend/backend using `demo / demo1234`; unverified email is accepted and `/api/me` returns a decoded access-token payload.
+- oauth2-proxy callback bugs found during E2E were fixed:
+  - `clientSecret` now uses the real Keycloak client secret rather than a Base64 string;
+  - profile fallback is skipped because the PoC does not require groups/profile lookup;
+  - backend supports the `/api/me` path preserved by oauth2-proxy.
+- Full logout was exercised with an authenticated session. oauth2-proxy now calls Keycloak OIDC end-session through `backendLogoutURL`; redirecting back shows the Keycloak login form instead of silently restoring the app.
+- Verify Email was exercised end-to-end in a fresh Chrome profile: app showed `NOT VERIFIED`, clicking `Verify email` opened the Keycloak AIA confirmation page, submitting it sent `Verify email` to Mailpit, following the actual action-token link returned to the app with `email_verified=true` and a fresh `email_verified_at` timestamp.
+- `configure-auth-flows.ps1` is idempotent and now also sets user-profile unmanaged attributes to `ADMIN_EDIT`, allowing server-side MFA trust to be inspected/revoked through Admin REST.
+- Phase 2 local flow was exercised over HTTP with a temporary verified test user:
+  - credentials -> dedicated MFA selector;
+  - selector -> Email OTP page;
+  - Mailpit received the 6-digit Email OTP;
+  - OTP success returned the application and `/api/me` reported `mfa_method=email`.
+- Per-device trust was exercised end-to-end:
+  - successful OTP issued HttpOnly `POC_MFA_TRUST`;
+  - a new login preserving only the trust cookie skipped selector/OTP;
+  - `/api/me` reported `mfa_method=trusted_device`.
+- Account-wide trust was exercised end-to-end with `TrustedDeviceEnabled=false`:
+  - first device required OTP and did not receive `POC_MFA_TRUST`;
+  - a completely fresh second browser/device skipped OTP;
+  - `/api/me` reported `mfa_method=trusted_account`.
+- `clear-mfa-trust.ps1` originally failed because Keycloak 26 hides unmanaged attributes by default; after `ADMIN_EDIT` was configured it removed account/device trust correctly and the next fresh login returned to the MFA selector.
+- Phase 2 runtime binding verified: `browserFlow=poc-phase2-browser-v3`, `verifyEmail=true`, and `passwordPolicy=forceExpiredPasswordChange(180)`.
+- External IdP visual path was exercised: main realm shows `External Identity Provider Lab`, redirects to the separate `external-idp` realm, and the external login page uses its distinct theme.
+- External broker initially failed with issuer mismatch on userinfo. Keycloak now has canonical `KC_HOSTNAME=http://localhost:18080`; the broker callback proceeds to the independent First Broker Login flow and reaches `Account already exists` ownership verification instead of 502.
+- External IdP post-broker config was verified both ways:
+  - `require_mfa_after_broker=true` binds `poc-external-idp-post-login-phase2-v2`;
+  - `false` clears the post-broker flow.
+- Logout UX now redirects to a public `/signed-out` page served directly by Kong/frontend, so oauth2-proxy does not immediately restart authentication. The page shows an explicit `Login` button that starts `/oauth2/start`.
+- Verified `/signed-out` returns HTTP 200 without authentication, contains the Login button, and `/oauth2/sign_out?...rd=/signed-out` returns `Location: http://localhost:8000/signed-out`.
+- Account Console failures were reproduced in real Chrome. Root causes were an imported `demo` user with no `default-roles-poc` assignment (Account Console API returned 401 because the token lacked `aud=account` / `resource_access.account`) and an obsolete hash URL. Runtime `demo` now has `default-roles-poc`, the clean realm import explicitly assigns it, and the application uses the Keycloak 26 path route `/realms/poc/account/account-security/linked-accounts`.
+- `Manage linked accounts` was exercised in a fresh Chrome profile with no 4xx Account Console requests; the page rendered `Linked accounts` and the configured `External Identity Provider Lab` provider.
+- Added a minimal `poc-account` Account Console theme derived from `keycloak.v3`; only the Account Console background is overridden to `#eef6ff`. Runtime realm `poc` now uses `accountTheme=poc-account`. Fresh Chrome verified the Linked accounts page loads the custom theme stylesheet and computed body background is `rgb(238, 246, 255)`.
+- Missing-email required-action flow was exercised in fresh Chrome with a no-email test user: `UPDATE_PROFILE` stopped login and required `Email *`; after submitting the address, `VERIFY_EMAIL` immediately blocked authentication and Keycloak showed that a verification email had been sent. This works in Phase 1 because both required actions are assigned directly to the user.
+- Added presentation UI for the second no-email method: when the current token has no email, the app shows both `Add email first` and `Require email on next login`. The second button calls `/api/poc/require-email-verification`, applies `UPDATE_PROFILE + VERIFY_EMAIL`, logs the Keycloak user out, then signs out oauth2-proxy. Fresh-Chrome E2E confirmed the button, signed-out transition, and next-login `Update Account Information` page. The endpoint is intentionally PoC-only and uses Keycloak admin credentials inside the backend.
+- The latest temporary user `button-no-email-test` was disabled after testing; earlier temporary E2E users were deleted.
+- Runtime was restored to default device trust (`TrustedDeviceEnabled=true`, 30 days), lab IdP `require_mfa_after_broker=false`, and Phase 1.
 
 ## Remaining manual browser checks
 
-- Complete actual email verification link through Mailpit and confirm `email_verified_at` in a fresh token.
-- Complete First Broker Login interactively with `external-demo / external1234`, verify account linking, then confirm `external_idp_linked` and `external_idp_linked_at` in a fresh token.
-- Run Phase 2 interactively from an untrusted browser and verify selector -> Email OTP -> trusted cookie/server record creation and `mfa_method=email`.
-- Login again from the same browser and verify selector/OTP are skipped and token contains `mfa_method=trusted_device`.
-- Confirm another browser still requires OTP.
-- Clear trust with `clear-mfa-trust.ps1` and confirm the old browser cookie no longer skips OTP.
-- Browser-test external IdP with `require_mfa_after_broker=true` for both untrusted and trusted browser paths.
-- Browser-test external IdP with `require_mfa_after_broker=false` and confirm no additional Keycloak MFA is shown.
+- Complete the final First Broker Login ownership verification for `demo` and confirm `external_idp_linked=true`, `external_idp_linked_at`, and `login_provider=lab-idp`. Automated broker testing reaches the ownership-verification step; `demo` is intentionally still unverified and therefore Keycloak requires its Verify Email step before linking completes.
+- Browser-visual confirmation of the exact rendered appearance remains manual; HTTP E2E verified the pages/forms and flow transitions.

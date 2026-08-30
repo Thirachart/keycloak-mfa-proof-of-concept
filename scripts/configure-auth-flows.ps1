@@ -1,5 +1,6 @@
 param(
   [bool]$TrustedDeviceEnabled = $true,
+  [Alias('TrustDays')]
   [int]$MfaTrustDays = 30
 )
 
@@ -21,6 +22,13 @@ $token = (Invoke-RestMethod -Method Post -Uri "$base/realms/master/protocol/open
   grant_type = 'password'
 }).access_token
 $headers = @{ Authorization = "Bearer $token" }
+
+$userProfile = Invoke-RestMethod -Method Get -Uri "$base/admin/realms/$realmName/users/profile" -Headers $headers
+if ($userProfile.unmanagedAttributePolicy -ne 'ADMIN_EDIT') {
+  $userProfile | Add-Member -NotePropertyName unmanagedAttributePolicy -NotePropertyValue 'ADMIN_EDIT' -Force
+  Invoke-RestMethod -Method Put -Uri "$base/admin/realms/$realmName/users/profile" -Headers $headers -ContentType 'application/json' -Body ($userProfile | ConvertTo-Json -Depth 30)
+  Write-Host 'Configured unmanaged user attributes as ADMIN_EDIT so server-side MFA trust can be inspected and revoked through Admin REST.'
+}
 
 function Get-Flows {
   Invoke-RestMethod -Method Get -Uri "$base/admin/realms/$realmName/authentication/flows" -Headers $headers

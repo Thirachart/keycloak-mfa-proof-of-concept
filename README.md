@@ -67,13 +67,23 @@ No built-in Keycloak Browser flow is modified by the phase switch.
 
 Password expiration is phase-controlled. Phase 1 disables password expiration. Phase 2 enables `forceExpiredPasswordChange(180)` on the main `poc` realm, so local Keycloak passwords expire after 180 days. When expired, Keycloak requires the user to update the password before authentication can complete. The simulated `external-idp` realm remains independently managed.
 
-## Email verification button
+## Email verification
 
 The frontend starts Keycloak's Application-Initiated Action through oauth2-proxy:
 
 `/oauth2/start?...&kc_action=VERIFY_EMAIL`
 
 Keycloak owns the verification flow. The application does not implement it.
+
+For a user that has no email, there is also an admin-driven next-login flow:
+
+```powershell
+.\scripts\require-email-verification.ps1 -Username demo
+```
+
+The script adds `UPDATE_PROFILE` when the user has no email and adds `VERIFY_EMAIL` while the email is unverified, then logs the user out by default. On the next login Keycloak first requires the missing email in Update Profile and then blocks authentication on Verify Email until the address is verified. This user-specific enforcement also works in Phase 1 where realm-wide `verifyEmail` is disabled.
+
+For presentation, the frontend also shows a second button, `Require email on next login`, only when the current token has no email. It calls the PoC backend endpoint `/api/poc/require-email-verification`, which applies `UPDATE_PROFILE + VERIFY_EMAIL` to the current Keycloak user and logs that user out; the browser then signs out of oauth2-proxy and the next login demonstrates the Keycloak-required profile/verification path. `Add email first` remains available beside it so both approaches can be demonstrated. This endpoint intentionally uses Keycloak admin credentials inside the PoC backend and must not be treated as a production pattern.
 
 ## Token state shown by UI
 

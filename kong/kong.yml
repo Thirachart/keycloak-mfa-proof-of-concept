@@ -2,6 +2,14 @@ _format_version: "3.0"
 _transform: true
 
 services:
+  - name: poc-signed-out
+    url: http://frontend/signed-out.html
+    routes:
+      - name: poc-signed-out-route
+        paths:
+          - /signed-out
+        strip_path: true
+
   - name: poc-app
     url: http://oauth2-proxy:4180
     routes:
@@ -9,3 +17,4 @@ services:
         paths:
           - /
         strip_path: false
+        preserve_host: true

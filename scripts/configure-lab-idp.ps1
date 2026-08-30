@@ -49,6 +49,7 @@ $representation = @{
     useJwksUrl = 'true'
     validateSignature = 'true'
     syncMode = 'IMPORT'
+    showInAccountConsole = 'ALWAYS'
     require_mfa_after_broker = $RequireMfaAfterBroker
   }
 }

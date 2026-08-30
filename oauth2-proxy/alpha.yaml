@@ -6,11 +6,13 @@ providers:
     provider: oidc
     name: Keycloak
     clientID: poc-app
-    clientSecret: cG9jLWFwcC1zZWNyZXQ=
+    clientSecret: poc-app-secret
     scope: "openid profile email"
     loginURL: "http://localhost:18080/realms/poc/protocol/openid-connect/auth"
     redeemURL: "http://keycloak:8080/realms/poc/protocol/openid-connect/token"
     profileURL: "http://keycloak:8080/realms/poc/protocol/openid-connect/userinfo"
+    skipClaimsFromProfileURL: true
+    backendLogoutURL: "http://keycloak:8080/realms/poc/protocol/openid-connect/logout?id_token_hint={id_token}"
     oidcConfig:
       issuerURL: "http://localhost:18080/realms/poc"
       jwksURL: "http://keycloak:8080/realms/poc/protocol/openid-connect/certs"
@@ -40,10 +42,6 @@ injectRequestHeaders:
       - claimSource:
           claim: access_token
           prefix: "Bearer "
-  - name: X-Forwarded-Email
-    values:
-      - claimSource:
-          claim: email
   - name: X-Forwarded-User
     values:
       - claimSource:

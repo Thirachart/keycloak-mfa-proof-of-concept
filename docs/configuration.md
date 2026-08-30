@@ -11,6 +11,8 @@ The provider JAR is added during the Keycloak image build and `kc.sh build` is e
 
 Realm: `poc`
 
+Keycloak uses canonical hostname `http://localhost:18080` (`KC_HOSTNAME`) so tokens, userinfo validation, and broker callbacks use one consistent issuer even when server-to-server calls use Docker DNS `keycloak:8080`.
+
 Initial realm state:
 - `verifyEmail=false`
 - Browser flow = `poc-phase1-browser-v2` by default. Both Phase 1 and Phase 2 flows are created from copies of built-in `browser`; built-in flow remains unchanged.
@@ -44,8 +46,11 @@ Important settings:
 - `/api/` routes to Backend
 - `/` routes to Frontend
 - `kc_action` is allowed only for value `VERIFY_EMAIL`
+- `clientSecret` is the actual Keycloak client secret `poc-app-secret`
+- `skipClaimsFromProfileURL=true` because this PoC does not need group/profile fallback
+- `backendLogoutURL` calls the Keycloak OIDC end-session endpoint with `{id_token}` so Sign out clears both oauth2-proxy and Keycloak SSO
 
-The browser-facing authorization URL uses `localhost:18080`, while token/userinfo/JWKS calls use Docker DNS name `keycloak:8080`.
+The browser-facing authorization URL uses `localhost:18080`, while token/userinfo/JWKS calls use Docker DNS name `keycloak:8080`. The canonical Keycloak hostname keeps the issuer stable across both access paths.
 
 ## Kong
 
@@ -77,7 +82,7 @@ Node/Express endpoint:
 GET /api/me
 ```
 
-Because oauth2-proxy strips the `/api/` upstream prefix, backend receives `/me`.
+oauth2-proxy preserves the request path for this upstream, so backend accepts both `/api/me` and `/me` (and the corresponding health aliases) to keep direct/internal checks simple.
 
 The backend performs JWT payload decode only. It deliberately does not verify:
 - signature

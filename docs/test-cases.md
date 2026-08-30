@@ -129,7 +129,7 @@ Expected:
 
 Expected frontend behavior:
 
-- no email: show `NO EMAIL` and `Add email first`, linking to Keycloak Account personal info
+- no email: backend reports `email=null` from the JWT claim source of truth (no proxy-header fallback); UI shows `NO EMAIL` and `Add email first`, linking to Keycloak Account personal info
 - email present and unverified: show `NOT VERIFIED` and `Verify email`
 - email verified: show `VERIFIED`, show verification timestamp when available, and hide the Verify email action
 
@@ -147,7 +147,9 @@ Expected:
 
 ## TC-12 Unlink external IdP
 
-Unlink `lab-idp` from Keycloak Account Console.
+Precondition: `lab-idp` is configured with `showInAccountConsole=ALWAYS`, and the user has the realm default role (`default-roles-poc`) so the Account Console token contains the built-in `account` roles.
+
+Open `http://localhost:18080/realms/poc/account/account-security/linked-accounts` and unlink `lab-idp` from Keycloak Account Console.
 
 Expected after a fresh token:
 
@@ -162,3 +164,47 @@ Expected:
 - oauth2-proxy performs the OIDC login/session role
 - backend only base64url-decodes the JWT payload for display
 - backend deliberately does not validate signature, issuer, audience, expiry, or nonce in this PoC
+
+## TC-14 Account-wide MFA trust
+
+Precondition: configure Phase 2 with `-TrustedDeviceEnabled $false -MfaTrustDays 30` and clear existing MFA trust for the test user.
+
+Expected:
+
+- the first login from any device runs the MFA selector and Email OTP
+- no `POC_MFA_TRUST` browser cookie is required in account-wide mode
+- successful OTP stores account trust expiry in `poc_mfa_trusted_until`
+- a fresh browser/device with no trusted-device cookie skips selector and OTP until the account trust expires
+- the resulting application token contains `mfa_method=trusted_account`
+- `clear-mfa-trust.ps1` removes account-wide trust and the next fresh login requires MFA again
+
+## TC-15 Full logout
+
+Expected:
+
+- `/oauth2/sign_out` clears the oauth2-proxy session
+- oauth2-proxy invokes the Keycloak OIDC end-session endpoint using the current ID token
+- logout redirects to public `/signed-out`, which bypasses oauth2-proxy
+- `/signed-out` displays a `Login` button instead of automatically starting authentication
+- pressing `Login` starts a fresh oauth2-proxy/Keycloak login and the previous Keycloak SSO session is not silently restored
+
+## TC-16 Require missing email on next login
+
+Precondition: create or select a local user with no email address and run:
+
+```powershell
+.\scripts\require-email-verification.ps1 -Username <username>
+```
+
+Expected:
+
+- when the signed-in application token has no email, the UI shows both `Add email first` and `Require email on next login`
+- `Require email on next login` calls `/api/poc/require-email-verification`, sets `UPDATE_PROFILE + VERIFY_EMAIL` for the current Keycloak user, logs out the Keycloak user session, then signs out oauth2-proxy
+- the backend endpoint rejects the presentation action when the current user already has an email
+- the admin script remains available as the non-UI way to apply the same required actions
+- the script logs out existing sessions unless `-NoLogout` is supplied
+- next login stops at Keycloak Update Profile and requires `Email *`
+- after submitting the email, authentication continues to Keycloak Verify Email
+- Keycloak sends the verification message to the new address
+- the user cannot complete authentication until the verification action is completed
+- this user-specific flow works even when Phase 1 keeps realm-wide `verifyEmail=false`

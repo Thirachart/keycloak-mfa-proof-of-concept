@@ -9,7 +9,7 @@
     .card{background:white;border:1px solid #ddd;border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:0 4px 18px #0000000d}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.item{padding:14px;border:1px solid #e5e5e5;border-radius:12px}.label{font-size:13px;color:#666;margin-bottom:6px}.value{font-weight:650;word-break:break-word}
     .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#eee;font-weight:650}.ok{background:#dff6e5}.warn{background:#fff1c9}
-    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}a.button{display:inline-block;padding:10px 16px;border-radius:10px;background:#222;color:white;text-decoration:none}a.secondary{background:#ececec;color:#222}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.button{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:0;border-radius:10px;background:#222;color:white;text-decoration:none;font:inherit;line-height:1.2;cursor:pointer}.button.secondary{background:#ececec;color:#222}.button:hover{filter:brightness(.96)}.button:focus-visible{outline:3px solid #2223;outline-offset:2px}
     pre{white-space:pre-wrap;word-break:break-word;background:#111;color:#eee;padding:16px;border-radius:12px;overflow:auto}
   </style>
 </head>
@@ -24,9 +24,10 @@
       <div class="item"><div class="label">MFA method</div><div id="mfaMethod" class="value">loading...</div></div>
     </div>
     <div class="actions">
-      <a id="verifyEmailAction" class="button" href="/oauth2/start?rd=http%3A%2F%2Flocalhost%3A8000%2F&kc_action=VERIFY_EMAIL">Verify email</a>
-      <a class="button secondary" href="http://localhost:18080/realms/poc/account/#/linked-accounts">Manage linked accounts</a>
-      <a class="button secondary" href="/oauth2/sign_out?rd=http%3A%2F%2Flocalhost%3A8000%2F">Sign out</a>
+      <a id="verifyEmailAction" class="button" href="#" aria-disabled="true" style="pointer-events:none;opacity:.55">Checking email...</a>
+      <button id="requireEmailOnLoginAction" class="button secondary" type="button" style="display:none">Require email on next login</button>
+      <a class="button secondary" href="http://localhost:18080/realms/poc/account/account-security/linked-accounts">Manage linked accounts</a>
+      <a class="button secondary" href="http://localhost:8000/oauth2/sign_out?rd=http%3A%2F%2Flocalhost%3A8000%2Fsigned-out">Sign out</a>
     </div>
   </div>
   <div class="card">
@@ -34,6 +35,10 @@
     <pre id="claims">loading...</pre>
   </div>
 <script>
+if (window.location.port === '18081') {
+  window.location.replace(`http://localhost:8000${window.location.pathname}${window.location.search}${window.location.hash}`);
+}
+
 function formatTimestamp(value) {
   if (!value) return 'date unavailable';
   const date = new Date(value);
@@ -48,13 +53,34 @@ function formatTimestamp(value) {
 
     const verifyBadge = document.getElementById('verifyBadge');
     const verifyEmailAction = document.getElementById('verifyEmailAction');
+    const requireEmailOnLoginAction = document.getElementById('requireEmailOnLoginAction');
 
     if (!me.email) {
       verifyBadge.textContent = 'NO EMAIL';
       verifyBadge.classList.add('warn');
       document.getElementById('verifiedAt').textContent = 'Add an email address before verification.';
       verifyEmailAction.textContent = 'Add email first';
-      verifyEmailAction.href = 'http://localhost:18080/realms/poc/account/#/personal-info';
+      verifyEmailAction.href = 'http://localhost:18080/realms/poc/account/';
+      verifyEmailAction.removeAttribute('aria-disabled');
+      verifyEmailAction.style.pointerEvents = 'auto';
+      verifyEmailAction.style.opacity = '1';
+      requireEmailOnLoginAction.style.display = 'inline-block';
+      requireEmailOnLoginAction.addEventListener('click', async () => {
+        requireEmailOnLoginAction.disabled = true;
+        requireEmailOnLoginAction.textContent = 'Configuring Keycloak...';
+        try {
+          const actionResponse = await fetch('/api/poc/require-email-verification', {
+            method: 'POST',
+            credentials: 'same-origin'
+          });
+          if (!actionResponse.ok) throw new Error(`HTTP ${actionResponse.status}`);
+          window.location.href = 'http://localhost:8000/oauth2/sign_out?rd=http%3A%2F%2Flocalhost%3A8000%2Fsigned-out';
+        } catch (error) {
+          requireEmailOnLoginAction.disabled = false;
+          requireEmailOnLoginAction.textContent = 'Require email on next login';
+          document.getElementById('verifiedAt').textContent = `Could not configure required actions: ${error.message}`;
+        }
+      });
     } else if (me.emailVerified === true) {
       verifyBadge.textContent = 'VERIFIED';
       verifyBadge.classList.add('ok');
@@ -65,6 +91,10 @@ function formatTimestamp(value) {
       verifyBadge.classList.add('warn');
       document.getElementById('verifiedAt').textContent = '';
       verifyEmailAction.textContent = 'Verify email';
+      verifyEmailAction.href = 'http://localhost:8000/oauth2/start?rd=http%3A%2F%2Flocalhost%3A8000%2F&kc_action=VERIFY_EMAIL';
+      verifyEmailAction.removeAttribute('aria-disabled');
+      verifyEmailAction.style.pointerEvents = 'auto';
+      verifyEmailAction.style.opacity = '1';
     }
 
     const idpBadge = document.getElementById('idpBadge');

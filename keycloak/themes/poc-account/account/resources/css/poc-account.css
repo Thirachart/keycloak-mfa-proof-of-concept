@@ -1,0 +1,187 @@
+/* PoC Account Console branding. Keycloak itself is forced to light mode via darkMode=false. */
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#app,
+.pf-v5-c-page,
+.pf-v5-c-page__main {
+  background: #f6f8fb;
+  color: #111827;
+}
+
+/* Header */
+.pf-v5-c-masthead,
+.pf-v5-c-toolbar,
+.pf-v5-c-toolbar__content,
+.pf-v5-c-toolbar__content-section {
+  background: #ffffff !important;
+  color: #111827 !important;
+}
+
+.pf-v5-c-masthead {
+  min-height: 72px;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
+}
+
+.pf-v5-c-masthead__brand img {
+  content: url("../img/poc-mark.svg");
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.pf-v5-c-menu-toggle,
+.pf-v5-c-button.pf-m-plain {
+  color: #374151 !important;
+}
+
+/* Sidebar */
+.pf-v5-c-page__sidebar,
+#page-sidebar,
+.pf-v5-c-nav {
+  background: #ffffff !important;
+  color: #374151 !important;
+}
+
+.pf-v5-c-page__sidebar {
+  border-right: 1px solid #e5e7eb;
+}
+
+.pf-v5-c-nav__link,
+.pf-v5-c-nav__link:visited,
+.pf-v5-c-nav__toggle,
+.pf-v5-c-nav__toggle-icon {
+  color: #374151 !important;
+}
+
+.pf-v5-c-nav__link {
+  min-height: 54px;
+}
+
+/* Current leaf item uses the blue accent. Expanded parent is neutral gray. */
+.pf-v5-c-nav__item.pf-m-current:not(.pf-m-expandable) > .pf-v5-c-nav__link,
+.pf-v5-c-nav__link.pf-m-current {
+  background: #eaf3ff !important;
+  color: #1668dc !important;
+  border-inline-start-color: #1677ff !important;
+}
+
+.pf-v5-c-nav__item.pf-m-expandable.pf-m-expanded > button.pf-v5-c-nav__link,
+.pf-v5-c-nav__item.pf-m-expandable.pf-m-current > button.pf-v5-c-nav__link {
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+  border-inline-start-color: transparent !important;
+}
+
+.pf-v5-c-nav__item.pf-m-expandable.pf-m-expanded > button.pf-v5-c-nav__link:hover {
+  background: #e5e7eb !important;
+  color: #1f2937 !important;
+}
+
+/* Main area */
+.pf-v5-c-page__main,
+.pf-v5-c-page__main-section,
+.pf-v5-c-page__main-section.pf-m-light {
+  background: #f6f8fb !important;
+  color: #111827 !important;
+}
+
+.pf-v5-c-page__main-section {
+  padding: 2.25rem 2.75rem !important;
+}
+
+.pf-v5-c-title,
+h1,
+h2,
+h3,
+.pf-v5-c-content,
+.pf-v5-c-form__label,
+.pf-v5-c-form__label-text,
+.pf-v5-c-description-list__text,
+.pf-v5-c-data-list {
+  color: #111827 !important;
+}
+
+/* Forms */
+.pf-v5-c-form-control,
+.pf-v5-c-text-input-group__text-input,
+.pf-v5-c-menu-toggle,
+.pf-v5-c-dropdown__toggle,
+.pf-v5-c-select__toggle {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border-color: #cfd6df !important;
+}
+
+.pf-v5-c-form-control {
+  border-radius: 10px !important;
+  min-height: 44px;
+}
+
+input,
+textarea,
+select {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  opacity: 1 !important;
+}
+
+input:disabled,
+input[disabled],
+input[readonly] {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+  opacity: 1 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+}
+
+/* Cards / lists */
+.pf-v5-c-card,
+.pf-v5-c-data-list,
+.pf-v5-c-data-list__item {
+  background: #ffffff !important;
+  color: #111827 !important;
+}
+
+.pf-v5-c-card,
+.pf-v5-c-data-list {
+  border: 1px solid #e1e6ed !important;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 5%);
+}
+
+.pf-v5-c-data-list__item {
+  border-bottom-color: #e5e7eb !important;
+}
+
+/* Actions */
+.pf-v5-c-button.pf-m-primary {
+  background: #1677ff !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+}
+
+.pf-v5-c-button.pf-m-primary:hover {
+  background: #0f5ed7 !important;
+}
+
+.pf-v5-c-button.pf-m-link,
+a {
+  color: #1668dc;
+}
+
+/* PoC scope: hide these navigation entries only; routes/features remain available. */
+.pf-v5-c-nav__item:has(> .pf-v5-c-nav__link[href$="/account-security/device-activity"]),
+.pf-v5-c-nav__item:has(> .pf-v5-c-nav__link[href$="/applications"]) {
+  display: none !important;
+}

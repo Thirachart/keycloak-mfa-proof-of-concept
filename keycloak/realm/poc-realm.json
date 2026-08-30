@@ -3,6 +3,7 @@
   "enabled": true,
   "displayName": "Email 2FA PoC",
   "loginTheme": "poc-main",
+  "accountTheme": "poc-account",
   "registrationAllowed": false,
   "verifyEmail": false,
   "loginWithEmailAllowed": true,
@@ -110,6 +111,7 @@
       "enabled": true,
       "email": "demo@example.com",
       "emailVerified": false,
+      "realmRoles": ["default-roles-poc"],
       "firstName": "Demo",
       "lastName": "User",
       "credentials": [
@@ -122,6 +124,14 @@
     }
   ],
   "requiredActions": [
+    {
+      "alias": "UPDATE_PROFILE",
+      "name": "Update Profile",
+      "providerId": "UPDATE_PROFILE",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 40
+    },
     {
       "alias": "VERIFY_EMAIL",
       "name": "Verify Email",
