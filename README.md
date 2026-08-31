@@ -158,6 +158,8 @@ Email OTP
 
 The selector is intentionally separated so additional methods such as TOTP or WebAuthn/Passkeys can be introduced later without redesigning the whole authentication flow.
 
+Email OTP messages also use the custom `poc-main` email theme. The HTML layout follows the PFAS template from the local `template/otp-email.html` reference, including Thai copy, the highlighted OTP code, expiry notice, and PFAS footer. The logo from local `template/newlogo.png` is embedded directly in `code-email.ftl` as a `data:image/png;base64,...` URI, so the delivered email does not depend on an externally hosted logo URL. The plain-text fallback is customized as well. The `email-authenticator` (Email OTP) execution itself is unchanged; only the rendered template differs.
+
 ## Trusted Browser / MFA trust
 
 Configuration is controlled by `configure-auth-flows.ps1`.
