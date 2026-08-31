@@ -26,6 +26,22 @@ Expected:
 - token contains `email_verified_at`
 - UI displays the timestamp
 
+## TC-02A Change email from Verify Email
+
+1. Open a PFAS-themed Verify Email screen and choose `เปลี่ยนอีเมล`.
+2. Submit a different email address on the PFAS-themed Update Email form.
+3. Confirm that `Confirmation email sent` is rendered inside the PFAS card and references the pending new email.
+4. Open the Mailpit email sent to the new address and follow its action-token link.
+5. Confirm that `Email updated` is rendered inside the PFAS card and references the new email.
+
+Expected:
+
+- oauth2-proxy forwards `kc_action=UPDATE_EMAIL`
+- Keycloak `UPDATE_EMAIL` has `verifyEmail=true`
+- PFAS background/card/logo/button styling is present on Update Email and both status screens
+- the confirmation message uses the PFAS email theme and Base64 logo
+- the account email changes only after the confirmation action-token is completed
+
 ## TC-03 Phase 2 local login
 
 Precondition: run `scripts/phase2.ps1` and start a fresh login.

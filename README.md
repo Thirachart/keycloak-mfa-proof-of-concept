@@ -209,6 +209,8 @@ Keycloak owns the verification process; the application does not implement verif
 
 Verify Email messages use the custom `poc-main` email theme. The HTML layout follows the PFAS template from the local `template/verify-email.html` reference, including Thai copy, the orange verify button, fallback action-token URL, and PFAS footer. The logo from local `template/newlogo.png` is embedded directly in `email-verification.ftl` as a `data:image/png;base64,...` URI, so the delivered email does not depend on an externally hosted logo URL. The plain-text fallback is customized as well.
 
+The browser-side Verify Email flow uses the same PFAS visual language for the Verify Email required-action and action-token screens. Users can choose `เปลี่ยนอีเมล`, which starts Keycloak's `UPDATE_EMAIL` Application-Initiated Action through oauth2-proxy. The update-email form, `Confirmation email sent`, and `Email updated` status screens are themed with the same PFAS card/background/logo styling. `UPDATE_EMAIL` is configured with `verifyEmail=true`, so the new address is not committed until the confirmation link sent to the new mailbox is completed. That confirmation email also uses the PFAS HTML/text theme and Base64 logo.
+
 The realm explicitly sets:
 
 ```text

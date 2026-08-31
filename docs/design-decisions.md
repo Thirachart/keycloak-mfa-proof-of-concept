@@ -13,9 +13,9 @@ Implementation:
 
 ## 2. Verify Email uses Keycloak Application Initiated Action
 
-Decision: The UI button starts `/oauth2/start` with `kc_action=VERIFY_EMAIL`.
+Decision: Verify Email starts `/oauth2/start` with `kc_action=VERIFY_EMAIL`. The Verify Email pages may also start Keycloak's built-in `UPDATE_EMAIL` action through `/oauth2/start?...&kc_action=UPDATE_EMAIL`.
 
-oauth2-proxy is configured to allow only this `kc_action` value and forwards it to Keycloak. This preserves OAuth state/callback handling in oauth2-proxy instead of building authorization URLs in application code.
+oauth2-proxy allow-lists only these two `kc_action` values and forwards them to Keycloak. This preserves OAuth state/callback handling in oauth2-proxy instead of building authorization URLs in application code. `UPDATE_EMAIL` uses `verifyEmail=true`, so the new address is committed only after confirmation at the new mailbox.
 
 ## 3. Frontend and Backend are separate
 

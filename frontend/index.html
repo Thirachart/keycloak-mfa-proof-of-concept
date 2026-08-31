@@ -25,6 +25,7 @@
     </div>
     <div class="actions">
       <a id="verifyEmailAction" class="button" href="#" aria-disabled="true" style="pointer-events:none;opacity:.55">Checking email...</a>
+      <a id="changeEmailAction" class="button secondary" href="http://localhost:8000/oauth2/start?rd=http%3A%2F%2Flocalhost%3A8000%2F&kc_action=UPDATE_EMAIL" style="display:none">เปลี่ยนอีเมล</a>
       <button id="requireEmailOnLoginAction" class="button secondary" type="button" style="display:none">Require email on next login</button>
       <a class="button secondary" href="http://localhost:18080/realms/poc/account/account-security/linked-accounts">Manage linked accounts</a>
       <a class="button secondary" href="http://localhost:8000/oauth2/sign_out?rd=http%3A%2F%2Flocalhost%3A8000%2Fsigned-out">Sign out</a>
@@ -53,6 +54,7 @@ function formatTimestamp(value) {
 
     const verifyBadge = document.getElementById('verifyBadge');
     const verifyEmailAction = document.getElementById('verifyEmailAction');
+    const changeEmailAction = document.getElementById('changeEmailAction');
     const requireEmailOnLoginAction = document.getElementById('requireEmailOnLoginAction');
 
     if (!me.email) {
@@ -82,11 +84,13 @@ function formatTimestamp(value) {
         }
       });
     } else if (me.emailVerified === true) {
+      changeEmailAction.style.display = 'inline-flex';
       verifyBadge.textContent = 'VERIFIED';
       verifyBadge.classList.add('ok');
       document.getElementById('verifiedAt').textContent = `Verified at: ${formatTimestamp(me.emailVerifiedAt)}`;
       verifyEmailAction.style.display = 'none';
     } else {
+      changeEmailAction.style.display = 'inline-flex';
       verifyBadge.textContent = 'NOT VERIFIED';
       verifyBadge.classList.add('warn');
       document.getElementById('verifiedAt').textContent = '';
