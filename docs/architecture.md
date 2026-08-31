@@ -38,7 +38,7 @@ oauth2-proxy :4180
 - Stores authenticated browser session
 - Handles callback
 - Passes access token and user headers upstream
-- Allows `kc_action=VERIFY_EMAIL` for Application Initiated Action
+- Allows only `kc_action=VERIFY_EMAIL` and `kc_action=UPDATE_EMAIL` for Application-Initiated Actions
 
 ### Kong
 - Single public entry point for the PoC
@@ -81,3 +81,11 @@ For this PoC, access to Backend is protected by oauth2-proxy session. The backen
 6. Browser returns to the application.
 
 No application backend endpoint is required to orchestrate this flow.
+
+### Update Email from Verify Email
+1. Verify Email pages expose `เปลี่ยนอีเมล`.
+2. The link starts `/oauth2/start?...&kc_action=UPDATE_EMAIL`.
+3. oauth2-proxy forwards only the allow-listed `UPDATE_EMAIL` action to Keycloak.
+4. Keycloak renders the PFAS-themed update-email form.
+5. With `verifyEmail=true`, Keycloak sends confirmation to the new address and keeps the previous address until confirmation succeeds.
+6. The `Confirmation email sent` and `Email updated` status screens use the same PFAS theme.

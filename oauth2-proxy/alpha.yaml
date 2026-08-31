@@ -26,6 +26,7 @@ providers:
       - name: kc_action
         allow:
           - value: VERIFY_EMAIL
+          - value: UPDATE_EMAIL
 
 upstreamConfig:
   upstreams:

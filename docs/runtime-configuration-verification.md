@@ -108,7 +108,7 @@ Verify:
 - browser-facing issuer/auth URLs use canonical Keycloak host `http://localhost:18080`
 - `/api/` is routed to backend
 - `/` is routed to frontend
-- `kc_action=VERIFY_EMAIL` is forwarded only for the intended Verify Email flow
+- `kc_action` is restricted to the intended `VERIFY_EMAIL` and `UPDATE_EMAIL` Application-Initiated Actions
 - logout performs both oauth2-proxy session logout and Keycloak OIDC end-session logout
 
 ## Frontend routes

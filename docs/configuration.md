@@ -48,7 +48,7 @@ Important settings:
 - access token is injected to backend as `Authorization: Bearer ...`
 - `/api/` routes to Backend
 - `/` routes to Frontend
-- `kc_action` is allowed only for value `VERIFY_EMAIL`
+- `kc_action` is allow-listed for `VERIFY_EMAIL` and `UPDATE_EMAIL`; no other Application-Initiated Actions are forwarded
 - `clientSecret` is the actual Keycloak client secret `poc-app-secret`
 - `skipClaimsFromProfileURL=true` because this PoC does not need group/profile fallback
 - `backendLogoutURL` calls the Keycloak OIDC end-session endpoint with `{id_token}` so Sign out clears both oauth2-proxy and Keycloak SSO
@@ -83,6 +83,14 @@ Verify Email action:
 ```text
 /oauth2/start?rd=http%3A%2F%2Flocalhost%3A8000%2F&kc_action=VERIFY_EMAIL
 ```
+
+Update Email action:
+
+```text
+/oauth2/start?rd=http%3A%2F%2Flocalhost%3A8000%2F&kc_action=UPDATE_EMAIL
+```
+
+The realm registers `UPDATE_EMAIL` with `verifyEmail=true`. The PFAS login theme overrides `update-email.ftl` and the related `Confirmation email sent` / `Email updated` info screens; the email-update confirmation message also uses the PFAS email theme.
 
 ## Backend
 
