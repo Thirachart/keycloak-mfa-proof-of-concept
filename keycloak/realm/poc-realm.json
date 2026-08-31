@@ -4,6 +4,7 @@
   "displayName": "Email 2FA PoC",
   "loginTheme": "poc-main",
   "accountTheme": "poc-account",
+  "emailTheme": "poc-main",
   "registrationAllowed": false,
   "verifyEmail": false,
   "loginWithEmailAllowed": true,

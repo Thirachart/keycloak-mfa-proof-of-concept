@@ -18,6 +18,8 @@ Initial realm state:
 - Browser flow = `poc-phase1-browser-v2` by default. Both Phase 1 and Phase 2 flows are created from copies of built-in `browser`; built-in flow remains unchanged.
 - Demo user email starts unverified
 - SMTP points to Mailpit
+- `emailTheme=poc-main` so Verify Email uses the custom PFAS email layout
+- `poc-main/email/html/email-verification.ftl` embeds the PFAS logo as a `data:image/png;base64,...` URI generated from the local `template/newlogo.png` reference; no external logo URL is required at delivery time
 - Phase 2 uses `poc-phase2-browser-v3` with a conditional Trusted Browser subflow
 - Email OTP executions use `skipSetup=true` so users do not need to enroll an email-OTP credential before admin-enforced 2FA
 - Trusted Device Recorder uses `trustDays=30`; trust is created automatically after successful Email OTP and no checkbox is shown

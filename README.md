@@ -205,6 +205,14 @@ The application starts Keycloak's Application-Initiated Action through oauth2-pr
 
 Keycloak owns the verification process; the application does not implement verification itself.
 
+Verify Email messages use the custom `poc-main` email theme. The HTML layout follows the PFAS template from the local `template/verify-email.html` reference, including Thai copy, the orange verify button, fallback action-token URL, and PFAS footer. The logo from local `template/newlogo.png` is embedded directly in `email-verification.ftl` as a `data:image/png;base64,...` URI, so the delivered email does not depend on an externally hosted logo URL. The plain-text fallback is customized as well.
+
+The realm explicitly sets:
+
+```text
+emailTheme=poc-main
+```
+
 ### User with no email
 
 An administrator can require email enrollment on the next login:
