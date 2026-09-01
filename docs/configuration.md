@@ -21,6 +21,9 @@ Initial realm state:
 - `emailTheme=poc-main` so Verify Email and Email OTP both use the custom PFAS email layout
 - `poc-main/email/html/email-verification.ftl` embeds the PFAS logo as a `data:image/png;base64,...` URI generated from the local `template/newlogo.png` reference; no external logo URL is required at delivery time
 - `poc-main/email/html/code-email.ftl` and `poc-main/email/text/code-email.ftl` customize the Email OTP message (subject, PFAS layout, embedded logo) using the same `data:image/png;base64,...` logo; the `email-authenticator` (Email OTP) execution/flow itself is unchanged, only its rendered template differs
+- `loginTheme=poc-main` also carries the production PATTAYA login design (from local `template/configmap-pattaya-theme.yaml`): `login.ftl`, `login-update-password.ftl`, and `error.ftl` are the production templates adapted to use the local `newlogo.png` instead of the production's remote asset URLs; `mfa-method-selector.ftl` and `email-code-form.ftl` (the Email OTP code-entry screen) are PoC-specific pages restyled to match the same look, since they are not part of the production ConfigMap
+- These login pages use a dedicated stylesheet `poc-main/login/resources/css/pattaya-login.css`, kept separate from `poc.css` so the existing Verify Email / Update Email / Account Console styling is unaffected
+- `poc-main/login/messages/messages_en.properties` carries the production ConfigMap's Thai label overrides (username, password, doLogIn, etc.); named `_en` rather than `_th` because the realm has `internationalizationEnabled=false`, so the "en" bundle is always the one Keycloak resolves
 - Phase 2 uses `poc-phase2-browser-v3` with a conditional Trusted Browser subflow
 - Email OTP executions use `skipSetup=true` so users do not need to enroll an email-OTP credential before admin-enforced 2FA
 - Trusted Device Recorder uses `trustDays=30`; trust is created automatically after successful Email OTP and no checkbox is shown

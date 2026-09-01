@@ -1,0 +1,448 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pattaya-theme-config
+  namespace: pits-app
+data:
+  theme.properties: |
+    parent=keycloak
+    styles=css/styles.css
+    locales=th
+
+  messages_th.properties: |
+    username=ชื่อผู้ใช้
+    usernameOrEmail=ชื่อผู้ใช้ หรืออีเมล
+    email=อีเมล
+    password=รหัสผ่าน
+    rememberMe=จำฉันไว้
+    doLogIn=เข้าสู่ระบบ
+    doRegister=ลงทะเบียน
+    doForgotPassword=ลืมรหัสผ่าน?
+    noAccount=ยังไม่มีบัญชี?
+    loginTitle=เข้าสู่ระบบ {0}
+    doSubmit=ส่ง
+    doCancel=ยกเลิก
+    doYes=ใช่
+    doNo=ไม่
+    doContinue=ดำเนินการต่อ
+    doBack=กลับ
+    error=เกิดข้อผิดพลาด
+    invalidUserMessage=ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง
+    invalidPasswordMessage=รหัสผ่านไม่ถูกต้อง
+    accountDisabledMessage=บัญชีถูกปิดการใช้งาน
+    accountTemporarilyDisabledMessage=บัญชีถูกระงับชั่วคราว
+    expiredCodeMessage=รหัสหมดอายุ กรุณาล็อกอินอีกครั้ง
+    sessionNotActiveMessage=เซสชันหมดอายุ
+    unknown=เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ
+    termsText=ข้อกำหนดและเงื่อนไข
+    recaptchaFailed=การยืนยันผู้ใช้ล้มเหลว
+    confirmPassword=ยืนยันรหัสผ่าน
+    passwordConfirm=ยืนยันรหัสผ่าน
+    firstName=ชื่อ
+    lastName=นามสกุล
+    emailVerified=ยืนยันอีเมลแล้ว
+    requiredMessage=ต้องระบุข้อมูลนี้
+    loginTotpTitle=ยืนนรับด้วยรหัส OTP
+    loginTotp=รหัส OTP
+    logoutConfirmTitle=ออกจากระบบ
+    logoutConfirmHeader=คุณต้องการออกจากระบบหรือไม่?
+    doLogout=ออกจากระบบ
+    pageNotFound=ไม่พบหน้าที่ต้องการ
+    stipEmail=อีเมล
+    loginTimeout=หมดเวลาเข้าสู่ระบบ
+    reauthenticate=ยืนยันตัวตนอีกครั้ง
+    authenticate=ยืนยันตัวตน
+    updatePasswordTitle=เปลี่ยนรหัสผ่าน
+    passwordNew=รหัสผ่านใหม่
+    passwordConfirmNew=ยืนยันรหัสผ่านใหม่
+
+  error.ftl: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>${msg("error")} | PATTAYA</title>
+        <link rel="icon" type="image/x-icon" href="https://pfas.pattaya.go.th/favicon.ico"/>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { font-family: 'Sarabun', sans-serif; background: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+            .error-wrap { text-align: center; padding: 40px 24px; max-width: 480px; }
+            .error-icon { font-size: 120px; font-weight: 700; color: #263238; line-height: 1; }
+            .error-msg { font-size: 28px; font-weight: 600; color: #37474f; margin: 16px 0 8px; }
+            .error-detail { font-size: 16px; color: #90a4ae; margin-bottom: 36px; line-height: 1.6; }
+            .btn-home { display: inline-block; padding: 12px 36px; background: #263238; color: #fff; font-size: 16px; font-weight: 600; text-decoration: none; border-radius: 6px; transition: background 0.2s; }
+            .btn-home:hover { background: #e65100; }
+        </style>
+    </head>
+    <body>
+      <div class="error-wrap">
+          <div class="error-icon">
+              <#if message?has_content && (message.type!'') == 'error'>
+                  <i class="fa fa-exclamation-triangle" style="font-size:100px;color:#c62828;"></i>
+              <#elseif message?has_content && (message.type!'') == 'warning'>
+                  <i class="fa fa-exclamation-circle" style="font-size:100px;color:#e65100;"></i>
+              <#else>
+                  <i class="fa fa-exclamation-circle" style="font-size:100px;color:#90a4ae;"></i>
+              </#if>
+          </div>
+          <div class="error-msg">
+              <#if message?has_content>${message.summary?no_esc}<#else>${msg("error")}</#if>
+          </div>
+          <div class="error-detail">ระบบไม่สามารถดำเนินการได้<br/>กรุณาลองอีกครั้งหรือติดต่อผู้ดูแลระบบ</div>
+          <#if client?? && client.baseUrl?has_content>
+              <a href="${client.baseUrl}" class="btn-home">${msg("doBack")}</a>
+          <#else>
+              <a href="${url.loginUrl!'/'}" class="btn-home">${msg("doLogIn")}</a>
+          </#if>
+      </div>
+    </body>
+    </html>
+
+  info.ftl: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>${msg("info")} | PATTAYA</title>
+        <link rel="icon" type="image/x-icon" href="https://pfas.pattaya.go.th/favicon.ico"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { font-family: 'Sarabun', sans-serif; background: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+            .info-wrap { text-align: center; padding: 40px 24px; max-width: 480px; }
+            .info-icon { font-size: 120px; font-weight: 700; color: #263238; line-height: 1; }
+            .info-msg { font-size: 28px; font-weight: 600; color: #37474f; margin: 16px 0 8px; }
+            .info-detail { font-size: 16px; color: #90a4ae; margin-bottom: 36px; line-height: 1.6; }
+            .btn-home { display: inline-block; padding: 12px 36px; background: #263238; color: #fff; font-size: 16px; font-weight: 600; text-decoration: none; border-radius: 6px; transition: background 0.2s; }
+            .btn-home:hover { background: #e65100; }
+        </style>
+    </head>
+    <body>
+      <div class="info-wrap">
+          <div class="info-icon">
+              <#if message?has_content && (message.type!'') == 'success'>
+                  <i class="fa fa-check-circle" style="font-size:100px;color:#2e7d32;"></i>
+              <#elseif message?has_content && (message.type!'') == 'info'>
+                  <i class="fa fa-info-circle" style="font-size:100px;color:#1565c0;"></i>
+              <#else>
+                  <i class="fa fa-info-circle" style="font-size:100px;color:#90a4ae;"></i>
+              </#if>
+          </div>
+          <div class="info-msg">
+              <#if message?has_content>${message.summary?no_esc}<#else>${msg("info")}</#if>
+          </div>
+          <div class="info-detail">กรุณาดำเนินการตามขั้นตอน<br/>หรือกลับไปยังหน้าหลัก</div>
+          <#if client?? && client.baseUrl?has_content>
+              <a href="${client.baseUrl}" class="btn-home">${msg("doBack")}</a>
+          <#else>
+              <a href="${url.loginUrl!'/'}" class="btn-home">${msg("doLogIn")}</a>
+          </#if>
+      </div>
+    </body>
+    </html>
+
+  login.ftl: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>${msg("loginTitle",(realm.displayName!''))}</title>
+        <link href="${url.resourcesPath}/css/styles.css" rel="stylesheet" />
+        <link rel="icon" type="image/x-icon" href="https://pfas.pattaya.go.th/favicon.ico"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </head>
+    <body>
+      <div class="login-container">
+        
+        <div class="login-left-panel"></div>
+
+        <div class="login-right-panel">
+            <div class="login-form-wrapper">
+                
+                <div class="login-header">
+                    <h1 class="system-title-en">PATTAYA FINANCIAL AND ACCOUNTING SYSTEM</h1>
+                    <h2 class="system-title-th">ระบบการเงินและบัญชีเมืองพัทยา</h2>
+                </div>
+
+                <#if message?has_content && (message.type!'') == 'error'>
+                    <div class="alert-box">
+                        ${message.summary?no_esc}
+                    </div>
+                </#if>
+
+                <#if realm.password>
+                    <form id="kc-form-login" onsubmit="login.disabled = true; return true;" action="${url.loginAction}" method="post">
+                        
+                        <div class="form-group">
+                            <label for="username" class="form-label">
+                                <#if !realm.loginWithEmailAllowed>${msg("username")}<#elseif !realm.registrationEmailAsUsername>${msg("usernameOrEmail")}<#else>${msg("email")}</#if>
+                            </label>
+                            <input id="username" class="form-control" name="username" value="${(login.username)!''}" type="text" autofocus autocomplete="off" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password" class="form-label">${msg("password")}</label>
+                            <div class="password-wrapper">
+                                <input id="password" class="form-control" name="password" type="password" autocomplete="off" />
+                                <button type="button" class="toggle-password" onclick="togglePassword()" tabindex="-1" aria-label="แสดง/ซ่อนรหัสผ่าน">
+                                    <i id="toggle-icon" class="fa fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-options-group">
+                            <#if realm.rememberMe && !usernameHidden??>
+                                <div class="checkbox-item">
+                                    <label>
+                                        <#if login.rememberMe??>
+                                            <input id="rememberMe" name="rememberMe" type="checkbox" checked> ${msg("rememberMe")}
+                                        <#else>
+                                            <input id="rememberMe" name="rememberMe" type="checkbox"> ${msg("rememberMe")}
+                                        </#if>
+                                    </label>
+                                </div>
+                            </#if>
+                            
+                            <#if realm.resetPasswordAllowed>
+                                <div class="forgot-link">
+                                    <a href="${url.loginResetCredentialsUrl}">${msg("doForgotPassword")}</a>
+                                </div>
+                            </#if>
+                        </div>
+
+                        <div class="form-group">
+                            <button class="btn btn-primary" name="login" id="kc-login" type="submit">
+                                ${msg("doLogIn")}
+                            </button>
+                        </div>
+                    </form>
+                </#if>
+
+                <#if realm.password && social?? && social.providers?has_content>
+                    <div class="separator">
+                        <span>หรือเข้าสู่ระบบด้วย</span>
+                    </div>
+
+                    <div class="social-login-list">
+                        <#list social.providers as p>
+                            <a href="${p.loginUrl}" id="social-${p.alias}" class="btn-social">
+                                <#if p.alias == "thaid">
+                                    <img src="https://www.bora.dopa.go.th/wp-content/uploads/2023/05/ThaID2-300x300.png" alt="ThaiD">
+                                <#else>
+                                    <i class="fa fa-sign-in" aria-hidden="true" style="margin-right:8px;"></i>
+                                </#if>
+                                <span>${p.displayName!}</span>
+                            </a>
+                        </#list>
+                    </div>
+                </#if>
+
+                <#if realm.password && realm.registrationAllowed && !registrationDisabled??>
+                    <div class="register-link">
+                        <span>${msg("noAccount")} <a href="${url.registrationUrl}">${msg("doRegister")}</a></span>
+                    </div>
+                </#if>
+
+            </div>
+        </div>
+      </div>
+      <script>
+        function togglePassword() {
+          var input = document.getElementById('password');
+          var icon = document.getElementById('toggle-icon');
+          if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+          } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+          }
+        }
+      </script>
+    </body>
+    </html>
+
+  login-update-password.ftl: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>${msg("updatePasswordTitle")} | PATTAYA</title>
+        <link href="${url.resourcesPath}/css/styles.css" rel="stylesheet" />
+        <link rel="icon" type="image/x-icon" href="https://pfas.pattaya.go.th/favicon.ico"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </head>
+    <body>
+      <div class="login-container">
+
+        <div class="login-left-panel"></div>
+
+        <div class="login-right-panel">
+            <div class="login-form-wrapper">
+
+                <div class="login-header">
+                    <h1 class="system-title-en">PATTAYA FINANCIAL AND ACCOUNTING SYSTEM</h1>
+                    <h2 class="system-title-th">ระบบการเงินและบัญชีเมืองพัทยา</h2>
+                </div>
+
+                <div class="update-password-title">
+                    <i class="fa fa-lock" style="margin-right:8px;color:#e65100;"></i>${msg("updatePasswordTitle")}
+                </div>
+
+                <#if message?has_content && (message.type!'') == 'error'>
+                    <div class="alert-box">
+                        ${message.summary?no_esc}
+                    </div>
+                </#if>
+
+                <form id="kc-passwd-update-form" action="${url.loginAction}" method="post">
+                    <input type="text" id="username" name="username" value="${username!''}" autocomplete="username" readonly style="display:none;" />
+
+                    <div class="form-group">
+                        <label for="password-new" class="form-label">${msg("passwordNew")}</label>
+                        <div class="password-wrapper">
+                            <input id="password-new" class="form-control" name="password-new" type="password" autofocus autocomplete="new-password" />
+                            <button type="button" class="toggle-password" onclick="togglePassword('password-new','icon-new')" tabindex="-1" aria-label="แสดง/ซ่อนรหัสผ่านใหม่">
+                                <i id="icon-new" class="fa fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password-confirm" class="form-label">${msg("passwordConfirmNew")}</label>
+                        <div class="password-wrapper">
+                            <input id="password-confirm" class="form-control" name="password-confirm" type="password" autocomplete="new-password" />
+                            <button type="button" class="toggle-password" onclick="togglePassword('password-confirm','icon-confirm')" tabindex="-1" aria-label="แสดง/ซ่อนยืนยันรหัสผ่าน">
+                                <i id="icon-confirm" class="fa fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top:8px;">
+                        <button class="btn btn-primary" type="submit">
+                            ${msg("doSubmit")}
+                        </button>
+                    </div>
+
+                    <#if isAppInitiatedAction??>
+                        <div class="form-group">
+                            <button class="btn btn-cancel" type="submit" name="cancel-aia" value="true">
+                                ${msg("doCancel")}
+                            </button>
+                        </div>
+                    </#if>
+                </form>
+
+            </div>
+        </div>
+      </div>
+      <script>
+        function togglePassword(inputId, iconId) {
+          var input = document.getElementById(inputId);
+          var icon = document.getElementById(iconId);
+          if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+          } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+          }
+        }
+      </script>
+    </body>
+    </html>
+
+  styles.css: |
+    /* Import Font ภาษาไทย */
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap');
+
+    body, html { height: 100%; margin: 0; font-family: 'Sarabun', sans-serif; }
+    .login-container { display: flex; height: 100vh; width: 100vw; }
+
+    /* Left Panel with Background Image */
+    .login-left-panel { 
+        flex: 5; 
+        background-color: #ffffff; 
+        background-image: url('https://pfas.pattaya.go.th/assets/images/logo/login-img.png');
+        background-size: cover;    
+        background-position: center; 
+        background-repeat: no-repeat;
+    }
+
+    /* Right Panel */
+    .login-right-panel { flex: 5; background-color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 40px; }
+    .login-form-wrapper { width: 100%; max-width: 450px; }
+
+    /* Headers */
+    .system-title-en { color: #f60; font-size: 2rem; font-weight: normal; margin: 0; line-height: 1.2; }
+    .system-title-th { color: #000; font-size: 20px; margin-top: 10px; margin-bottom: 30px; font-weight: normal; }
+
+    /* Alert Box */
+    .alert-box {
+        background-color: #ffebee; color: #c62828; padding: 12px; margin-bottom: 20px; border-radius: 6px; border: 1px solid #ef9a9a; font-size: 14px;
+    }
+
+    /* Form Elements */
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; margin-bottom: 8px; color: #37474f; font-weight: bold; font-size: 14px; }
+    .form-control { width: 100%; padding: 12px; border: 1px solid #cfd8dc; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.2s; }
+    .form-control:focus { outline: none; border-color: #e65100; box-shadow: 0 0 0 3px rgba(230, 81, 0, 0.1); }
+    .password-wrapper { position: relative; }
+    .password-wrapper .form-control { padding-right: 44px; }
+    .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #90a4ae; font-size: 16px; padding: 0; line-height: 1; }
+    .toggle-password:hover { color: #546e7a; }
+
+    /* Remember Me & Forgot Password */
+    .form-options-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; font-size: 14px; color: #546e7a; }
+    .checkbox-item label { display: flex; align-items: center; cursor: pointer; }
+    .checkbox-item input { margin-right: 8px; width: 16px; height: 16px; accent-color: #e65100; }
+    .forgot-link a, .register-link a { color: #e65100; text-decoration: none; font-weight: 600; }
+    .forgot-link a:hover, .register-link a:hover { text-decoration: underline; }
+
+    /* Update Password Title */
+    .update-password-title { font-size: 18px; font-weight: 600; color: #37474f; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid #f5f5f5; }
+
+    /* Login Button */
+    .btn-primary { width: 100%; padding: 10px; background-color: #e65100; color: white; border: none; border-radius: 30px; font-size: 18px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(230, 81, 0, 0.2); }
+    .btn-primary:hover { background-color: #bf360c; transform: translateY(-1px); }
+    .btn-cancel { width: 100%; padding: 10px; background-color: #ffffff; color: #546e7a; border: 1px solid #cfd8dc; border-radius: 30px; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 4px; }
+    .btn-cancel:hover { background-color: #f5f5f5; border-color: #b0bec5; }
+
+    /* Separator */
+    .separator { display: flex; align-items: center; text-align: center; margin: 30px 0 20px 0; color: #90a4ae; font-size: 14px; }
+    .separator::before, .separator::after { content: ''; flex: 1; border-bottom: 1px solid #cfd8dc; }
+    .separator span { padding: 0 10px; }
+
+    /* Social Login Buttons */
+    .social-login-list { display: flex; flex-direction: column; gap: 10px; }
+    .btn-social {
+        width: 100%; padding: 12px; background-color: #ffffff; color: #37474f; 
+        border: 1px solid #cfd8dc; border-radius: 8px; font-size: 16px; font-weight: 600; 
+        cursor: pointer; display: flex; align-items: center; justify-content: center; 
+        text-decoration: none; transition: 0.2s;
+        box-sizing: border-box; /* สำคัญ */
+    }
+    .btn-social:hover { background-color: #f5f5f5; border-color: #b0bec5; }
+    .btn-social img { height: 24px; margin-right: 10px; }
+
+    /* Register Link */
+    .register-link { margin-top: 24px; text-align: center; font-size: 14px; color: #546e7a; }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .login-container { flex-direction: column; }
+        .login-left-panel { flex: none; height: 200px; }
+        .login-right-panel { flex: 1; align-items: flex-start; padding: 24px; }
+        .system-title-en { font-size: 20px; }
+        .system-title-th { font-size: 16px; }
+    }

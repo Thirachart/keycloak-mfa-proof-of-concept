@@ -146,6 +146,22 @@ Behavior:
 
 The built-in Keycloak `browser` flow is not modified. The PoC creates and binds independent flows copied from Keycloak-owned flows.
 
+## Login theme (PATTAYA production branding)
+
+The `poc-main` login theme integrates the real production login design, based on the local reference `template/configmap-pattaya-theme.yaml` (a Kubernetes ConfigMap export of the production PFAS login theme).
+
+Overridden templates:
+
+- `login.ftl` — username/password form, two-panel layout with PATTAYA/PFAS branding
+- `login-update-password.ftl` — forced password-change screen (Phase 2 180-day expiry)
+- `error.ftl` — generic Keycloak error page
+- `mfa-method-selector.ftl` — restyled to match the same visual language; this page is PoC-specific and was not part of the production ConfigMap
+- `email-code-form.ftl` — the Email OTP code-entry screen (overrides `keycloak-2fa-email-authenticator`'s default template); also PoC-specific, not part of the production ConfigMap
+
+These pages use a dedicated stylesheet, `resources/css/pattaya-login.css`, kept separate from `poc.css` so the existing Verify Email / Update Email / Account Console styling is unaffected. The production ConfigMap's remote logo/background URLs (`pfas.pattaya.go.th`) are replaced with the PoC's local `newlogo.png` so the theme has no external dependency at delivery time.
+
+`info.ftl`, `login-verify-email.ftl`, `update-email.ftl`, and `verify-layout.ftl` are untouched — the existing Verify Email / Update Email screens keep their previously verified design.
+
 ## MFA method selection
 
 Phase 2 contains an explicit MFA method selector.
@@ -370,6 +386,7 @@ The PoC has been exercised end-to-end through the real browser flow for scenario
 - External IdP login through the simulated OIDC provider
 - Brokered callback through Kong/oauth2-proxy
 - External linked-account token state
+- PATTAYA login theme end-to-end: login form, MFA method selector, Email OTP code entry, all rendering with the production branding
 
 ## Useful scripts
 
