@@ -23,6 +23,34 @@ $token = (Invoke-RestMethod -Method Post -Uri "$base/realms/master/protocol/open
 }).access_token
 $headers = @{ Authorization = "Bearer $token" }
 
+function Ensure-RequiredAction([string]$alias, [string]$name) {
+  $actions = Invoke-RestMethod -Method Get -Uri "$base/admin/realms/$realmName/authentication/required-actions" -Headers $headers
+  $existing = $actions | Where-Object { $_.alias -eq $alias } | Select-Object -First 1
+
+  if (-not $existing) {
+    Invoke-RestMethod -Method Post -Uri "$base/admin/realms/$realmName/authentication/register-required-action" -Headers $headers -ContentType 'application/json' -Body (@{
+      providerId = $alias
+      name = $name
+    } | ConvertTo-Json) | Out-Null
+    Write-Host "Registered required action: $alias"
+    $actions = Invoke-RestMethod -Method Get -Uri "$base/admin/realms/$realmName/authentication/required-actions" -Headers $headers
+    $existing = $actions | Where-Object { $_.alias -eq $alias } | Select-Object -First 1
+  }
+
+  if (-not $existing) { throw "Could not register required action $alias." }
+  if (-not $existing.enabled) {
+    $existing.enabled = $true
+    $encodedAlias = [uri]::EscapeDataString($alias)
+    Invoke-RestMethod -Method Put -Uri "$base/admin/realms/$realmName/authentication/required-actions/$encodedAlias" -Headers $headers -ContentType 'application/json' -Body ($existing | ConvertTo-Json -Depth 10) | Out-Null
+    Write-Host "Enabled required action: $alias"
+  }
+}
+
+# Reset Credentials includes a REQUIRED Reset Password execution. The corresponding
+# UPDATE_PASSWORD required action must exist or the email action token cannot render
+# the password-update form and Keycloak may finish at a generic account-updated state.
+Ensure-RequiredAction 'UPDATE_PASSWORD' 'Update Password'
+
 $userProfile = Invoke-RestMethod -Method Get -Uri "$base/admin/realms/$realmName/users/profile" -Headers $headers
 if ($userProfile.unmanagedAttributePolicy -ne 'ADMIN_EDIT') {
   $userProfile | Add-Member -NotePropertyName unmanagedAttributePolicy -NotePropertyValue 'ADMIN_EDIT' -Force

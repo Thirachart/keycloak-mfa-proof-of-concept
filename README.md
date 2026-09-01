@@ -158,9 +158,13 @@ Overridden templates:
 - `mfa-method-selector.ftl` — restyled to match the same visual language; this page is PoC-specific and was not part of the production ConfigMap
 - `email-code-form.ftl` — the Email OTP code-entry screen (overrides `keycloak-2fa-email-authenticator`'s default template); also PoC-specific, not part of the production ConfigMap
 
-These pages use a dedicated stylesheet, `resources/css/pattaya-login.css`, kept separate from `poc.css` so the existing Verify Email / Update Email / Account Console styling is unaffected. The production ConfigMap's remote logo/background URLs (`pfas.pattaya.go.th`) are replaced with the PoC's local `newlogo.png` so the theme has no external dependency at delivery time.
+These pages use a dedicated stylesheet, `resources/css/pattaya-login.css`. The production ConfigMap's remote PFAS logo/background URLs are replaced with the PoC's local `newlogo.png` where adapted locally.
 
-`info.ftl`, `login-verify-email.ftl`, `update-email.ftl`, and `verify-layout.ftl` are untouched — the existing Verify Email / Update Email screens keep their previously verified design.
+Theme coverage now extends the PATTAYA/PFAS visual family across every reachable end-user-facing page rendered by the main `poc` realm. Existing Verify Email / Update Email pages keep their proven PFAS card layout with PATTAYA-aligned visual tokens, while reachable pages inherited from `keycloak.v2` (for example reset-credentials, missing-email `UPDATE_PROFILE`, generic status/action-token pages, and main-realm broker/account-linking screens) render through the local shared PATTAYA `template.ftl`. The end-user `poc-account` Account Console is also aligned to PATTAYA branding. Theme changes remain presentation-only except for one confirmed Reset Password configuration repair: `UPDATE_PASSWORD` is restored because the realm's explicit required-action list had omitted it even though the built-in Reset Credentials flow requires it. Keycloak Admin Console and the intentionally distinct `lab-idp` theme remain out of scope.
+
+Implementation scope, logic-freeze rules, reachability inventory, and acceptance criteria are documented in `docs/pattaya-theme-coverage.md`.
+
+The authenticated PoC home page also exposes **เปลี่ยนรหัสผ่าน** through Keycloak Application-Initiated Action `UPDATE_PASSWORD`. oauth2-proxy explicitly allow-lists this action, and the flow reuses the PATTAYA `login-update-password.ftl` page; password values are submitted only to Keycloak and never pass through the PoC frontend/backend. Specification and test plan: `docs/change-password-aia.md`.
 
 ## MFA method selection
 
@@ -174,7 +178,7 @@ Email OTP
 
 The selector is intentionally separated so additional methods such as TOTP or WebAuthn/Passkeys can be introduced later without redesigning the whole authentication flow.
 
-Email OTP messages also use the custom `poc-main` email theme. The HTML layout follows the PFAS template from the local `template/otp-email.html` reference, including Thai copy, the highlighted OTP code, expiry notice, and PFAS footer. The logo from local `template/newlogo.png` is embedded directly in `code-email.ftl` as a `data:image/png;base64,...` URI, so the delivered email does not depend on an externally hosted logo URL. The plain-text fallback is customized as well. The `email-authenticator` (Email OTP) execution itself is unchanged; only the rendered template differs.
+Email OTP messages also use the custom `poc-main` email theme. The HTML layout follows the PFAS template from the local `template/otp-email.html` reference, including Thai copy, the highlighted OTP code, expiry notice, and PFAS footer. The logo from local `template/newlogo.png` is embedded directly in `code-email.ftl` as a `data:image/png;base64,...` URI, so the delivered email does not depend on an externally hosted logo URL. The plain-text fallback is customized as well. Reset Password mail now uses `email/html/password-reset.ftl` and `email/text/password-reset.ftl` with the same PFAS card/Base64-logo treatment and a Thai subject. The `email-authenticator` (Email OTP) execution itself is unchanged; only the rendered template differs.
 
 ## Trusted Browser / MFA trust
 

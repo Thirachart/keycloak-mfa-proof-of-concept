@@ -108,7 +108,7 @@ Verify:
 - browser-facing issuer/auth URLs use canonical Keycloak host `http://localhost:18080`
 - `/api/` is routed to backend
 - `/` is routed to frontend
-- `kc_action` is restricted to the intended `VERIFY_EMAIL` and `UPDATE_EMAIL` Application-Initiated Actions
+- `kc_action` is restricted to the intended `VERIFY_EMAIL`, `UPDATE_EMAIL`, and `UPDATE_PASSWORD` Application-Initiated Actions
 - logout performs both oauth2-proxy session logout and Keycloak OIDC end-session logout
 
 ## Frontend routes
@@ -119,6 +119,7 @@ Verify authenticated application behavior through `http://localhost:8000`, not d
 - direct frontend port redirects to the full application path
 - Sign out targets port 8000
 - Verify Email targets port 8000
+- Change Password targets `/oauth2/start?...&kc_action=UPDATE_PASSWORD` on port 8000
 - no-email state targets Keycloak Account Personal Info instead of `VERIFY_EMAIL`
 - Manage linked accounts targets Keycloak Account Console
 

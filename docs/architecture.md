@@ -38,7 +38,7 @@ oauth2-proxy :4180
 - Stores authenticated browser session
 - Handles callback
 - Passes access token and user headers upstream
-- Allows only `kc_action=VERIFY_EMAIL` and `kc_action=UPDATE_EMAIL` for Application-Initiated Actions
+- Allows only `kc_action=VERIFY_EMAIL`, `kc_action=UPDATE_EMAIL`, and `kc_action=UPDATE_PASSWORD` for Application-Initiated Actions
 
 ### Kong
 - Single public entry point for the PoC
@@ -47,7 +47,7 @@ oauth2-proxy :4180
 ### Frontend
 - Shows login identity
 - Shows `email_verified`
-- Offers Verify Email action
+- Offers Verify Email, Update Email, and Change Password actions
 - Shows decoded token payload returned by backend
 - Does not enforce authentication phase
 
@@ -89,3 +89,11 @@ No application backend endpoint is required to orchestrate this flow.
 4. Keycloak renders the PFAS-themed update-email form.
 5. With `verifyEmail=true`, Keycloak sends confirmation to the new address and keeps the previous address until confirmation succeeds.
 6. The `Confirmation email sent` and `Email updated` status screens use the same PFAS theme.
+
+### Change Password from authenticated application
+1. Authenticated frontend exposes `เปลี่ยนรหัสผ่าน`.
+2. The link starts `/oauth2/start?...&kc_action=UPDATE_PASSWORD` with return destination `/`.
+3. oauth2-proxy forwards only the allow-listed `UPDATE_PASSWORD` action to Keycloak.
+4. Keycloak renders the existing PATTAYA `login-update-password.ftl` required-action page.
+5. Password values are posted only to Keycloak; the frontend/backend never receive them.
+6. App-initiated mode exposes `cancel-aia=true`; success or cancel returns through the normal OAuth callback to the application.

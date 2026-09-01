@@ -10,9 +10,7 @@
 <body>
   <div class="login-container">
 
-    <div class="login-left-panel">
-        <img src="${url.resourcesPath}/img/newlogo.png" alt="PFAS" />
-    </div>
+    <div class="login-left-panel" aria-hidden="true"></div>
 
     <div class="login-right-panel">
         <div class="login-form-wrapper">

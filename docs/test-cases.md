@@ -224,3 +224,52 @@ Expected:
 - Keycloak sends the verification message to the new address
 - the user cannot complete authentication until the verification action is completed
 - this user-specific flow works even when Phase 1 keeps realm-wide `verifyEmail=false`
+
+## TC-17 PATTAYA theme coverage without logic changes
+
+Reference: `docs/pattaya-theme-coverage.md`.
+
+Exercise every reachable browser-facing page in the main `poc` realm, including normal/error login, MFA selector, Email OTP states, password update, Verify Email, Update Email, missing-email `UPDATE_PROFILE`, reset credentials, generic info/error/action-token states, main-realm broker/account-linking screens, and the end-user `poc-account` Account Console.
+
+Expected:
+
+- no reachable main-realm page falls back to stock Keycloak visual styling
+- all reachable main-realm pages use the same PATTAYA/PFAS visual family defined by the production-derived theme
+- user-facing validation/status/error messages default to Thai for the reachable PoC flows
+- the same validation failure is shown once; do not render the same message simultaneously as both a page-level and field-level alert
+- Forgot Password fields and primary/secondary actions visually match the PATTAYA form controls/buttons used elsewhere; no PatternFly underline or blue secondary-button ring remains
+- the `external-idp` realm remains visually distinct under `lab-idp`
+- the end-user Account Console uses PATTAYA/PFAS branding while preserving its existing routes/features
+- Keycloak Admin Console is unchanged and outside this test scope
+- form actions, HTTP methods, input names, hidden fields, submit name/value pairs, redirects, required-action conditions, and authenticator behavior are unchanged
+- Phase 1/Phase 2 behavior, Email OTP, Trusted Browser, Verify Email, Update Email, password policies, and broker/account-linking results remain identical to the pre-theme behavior; Reset Credentials retains Keycloak's built-in flow structure but now has the missing `UPDATE_PASSWORD` required action restored so the flow can actually render the password-update step
+- regression checks performed during implementation confirm one Thai alert for invalid login, blank Email OTP, invalid Email OTP, OTP resend cooldown, and blank Forgot Password validation; generic cookie/session Error also resolves its user-facing explanation in Thai
+- Reset Password request sends a PFAS-themed email with embedded local logo and non-default subject; following its action-token must render the PATTAYA password-update form with `password-new` and `password-confirm` rather than completing immediately as `Account updated`
+- after a successful recovery password update, the terminal page must show Thai `เปลี่ยนรหัสผ่านสำเร็จ`, explain that the password was changed, and expose a primary `เข้าสู่ระบบด้วยรหัสผ่านใหม่` action instead of stock `Account updated` with no next step
+
+## TC-18 Change Password from authenticated application
+
+Reference: `docs/change-password-aia.md`.
+
+Preconditions:
+- user is authenticated through `http://localhost:8000`
+- `UPDATE_PASSWORD` required action is registered and enabled
+
+Steps:
+1. From the authenticated home page click `เปลี่ยนรหัสผ่าน`.
+2. Confirm the request starts `/oauth2/start?...&kc_action=UPDATE_PASSWORD` and returns to `/`.
+3. Confirm oauth2-proxy accepts and forwards the allow-listed action.
+4. Confirm Keycloak renders the PATTAYA password-update page.
+5. Confirm `password-new` and `password-confirm` fields are present.
+6. Confirm app-initiated mode shows `ยกเลิก` using `cancel-aia=true`.
+7. Cancel and confirm the application is reached without a credential update.
+8. Optional manual acceptance: repeat the flow, set a valid new password, then verify the new password works and the previous password no longer works.
+
+Expected:
+- the authenticated frontend shows the Change Password action
+- no stock Keycloak visual styling is exposed
+- password values are posted only to Keycloak; no PoC frontend/backend endpoint receives them
+- Thai validation/password-policy messages remain consistent with the local theme
+- cancel does not change credentials
+- existing Forgot Password reset and Phase 2 forced-expiry password changes continue to use the same `UPDATE_PASSWORD` required action successfully
+- oauth2-proxy does not forward arbitrary `kc_action` values outside `VERIFY_EMAIL`, `UPDATE_EMAIL`, and `UPDATE_PASSWORD`; unlisted values are stripped from the authorization redirect

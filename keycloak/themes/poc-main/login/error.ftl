@@ -12,8 +12,9 @@
         body { font-family: 'Sarabun', sans-serif; background: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
         .error-wrap { text-align: center; padding: 40px 24px; max-width: 480px; }
         .error-icon { font-size: 120px; font-weight: 700; color: #263238; line-height: 1; }
-        .error-msg { font-size: 28px; font-weight: 600; color: #37474f; margin: 16px 0 8px; }
-        .error-detail { font-size: 16px; color: #90a4ae; margin-bottom: 36px; line-height: 1.6; }
+        .error-msg { font-size: 30px; font-weight: 700; color: #263238; margin: 16px 0 8px; }
+        .error-summary { font-size: 15px; color: #90a4ae; margin: 0 0 12px; line-height: 1.6; }
+        .error-detail { font-size: 16px; color: #546e7a; margin-bottom: 36px; line-height: 1.6; }
         .btn-home { display: inline-block; padding: 12px 36px; background: #263238; color: #fff; font-size: 16px; font-weight: 600; text-decoration: none; border-radius: 6px; transition: background 0.2s; }
         .btn-home:hover { background: #e65100; }
     </style>
@@ -29,9 +30,10 @@
               <i class="fa fa-exclamation-circle" style="font-size:100px;color:#90a4ae;"></i>
           </#if>
       </div>
-      <div class="error-msg">
-          <#if message?has_content>${message.summary?no_esc}<#else>${msg("error")}</#if>
-      </div>
+      <div class="error-msg">เกิดข้อผิดพลาด</div>
+      <#if message?has_content>
+          <div class="error-summary">${message.summary?no_esc}</div>
+      </#if>
       <div class="error-detail">ระบบไม่สามารถดำเนินการได้<br/>กรุณาลองอีกครั้งหรือติดต่อผู้ดูแลระบบ</div>
       <#if client?? && client.baseUrl?has_content>
           <a href="${client.baseUrl}" class="btn-home">${msg("doBack")}</a>

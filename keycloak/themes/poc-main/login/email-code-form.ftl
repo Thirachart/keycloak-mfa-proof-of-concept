@@ -10,9 +10,7 @@
 <body>
   <div class="login-container">
 
-    <div class="login-left-panel">
-        <img src="${url.resourcesPath}/img/newlogo.png" alt="PFAS" />
-    </div>
+    <div class="login-left-panel" aria-hidden="true"></div>
 
     <div class="login-right-panel">
         <div class="login-form-wrapper">
@@ -22,8 +20,12 @@
                 <h2 class="system-title-th">ยืนยันรหัส OTP</h2>
             </div>
 
-            <#if message?has_content && (message.type!'') == 'error'>
-                <div class="alert-box">
+            <#if messagesPerField.existsError('emailCode')>
+                <div class="alert-box" role="alert">
+                    ${kcSanitize(messagesPerField.get('emailCode'))?no_esc}
+                </div>
+            <#elseif message?has_content && (message.type!'') == 'error'>
+                <div class="alert-box" role="alert">
                     ${message.summary?no_esc}
                 </div>
             </#if>
@@ -38,11 +40,7 @@
                            autofocus maxlength="${otpLength?c}"
                            aria-invalid="<#if messagesPerField.existsError('emailCode')>true</#if>"
                            <#if maxAttemptsReached?? && maxAttemptsReached>disabled</#if> />
-                    <#if messagesPerField.existsError('emailCode')>
-                        <div class="alert-box" style="margin-top:12px;">
-                            ${kcSanitize(messagesPerField.get('emailCode'))?no_esc}
-                        </div>
-                    </#if>
+
                 </div>
 
                 <div class="otp-buttons">

@@ -11,11 +11,11 @@ Implementation:
 - Phase 2 selects `poc-phase2-browser-v3`, another independent copy, and enables realm `verifyEmail`. A conditional Trusted Browser subflow is added only to the copied Phase 2 forms flow; untrusted browsers run MFA selector + Email OTP and are trusted automatically for 30 days.
 - PowerShell scripts change only Keycloak Admin REST configuration and invalidate realm sessions.
 
-## 2. Verify Email uses Keycloak Application Initiated Action
+## 2. User account actions use Keycloak Application Initiated Actions
 
-Decision: Verify Email starts `/oauth2/start` with `kc_action=VERIFY_EMAIL`. The Verify Email pages may also start Keycloak's built-in `UPDATE_EMAIL` action through `/oauth2/start?...&kc_action=UPDATE_EMAIL`.
+Decision: Verify Email starts `/oauth2/start` with `kc_action=VERIFY_EMAIL`; Verify Email pages may start Keycloak's built-in `UPDATE_EMAIL`; the authenticated application may start `UPDATE_PASSWORD`.
 
-oauth2-proxy allow-lists only these two `kc_action` values and forwards them to Keycloak. This preserves OAuth state/callback handling in oauth2-proxy instead of building authorization URLs in application code. `UPDATE_EMAIL` uses `verifyEmail=true`, so the new address is committed only after confirmation at the new mailbox.
+oauth2-proxy explicitly allow-lists only `VERIFY_EMAIL`, `UPDATE_EMAIL`, and `UPDATE_PASSWORD` and forwards those values to Keycloak. This preserves OAuth state/callback handling in oauth2-proxy instead of building authorization URLs or handling credentials in application code. `UPDATE_EMAIL` uses `verifyEmail=true`, while `UPDATE_PASSWORD` reuses Keycloak's registered required action and PATTAYA password-update template. Password values never pass through the PoC frontend/backend.
 
 ## 3. Frontend and Backend are separate
 

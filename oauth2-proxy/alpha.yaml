@@ -27,6 +27,7 @@ providers:
         allow:
           - value: VERIFY_EMAIL
           - value: UPDATE_EMAIL
+          - value: UPDATE_PASSWORD
 
 upstreamConfig:
   upstreams:

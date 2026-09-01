@@ -18,15 +18,17 @@ Initial realm state:
 - Browser flow = `poc-phase1-browser-v2` by default. Both Phase 1 and Phase 2 flows are created from copies of built-in `browser`; built-in flow remains unchanged.
 - Demo user email starts unverified
 - SMTP points to Mailpit
-- `emailTheme=poc-main` so Verify Email and Email OTP both use the custom PFAS email layout
+- `emailTheme=poc-main` so Verify Email, Email OTP, Update Email confirmation, and Reset Password use the custom PFAS email layout
 - `poc-main/email/html/email-verification.ftl` embeds the PFAS logo as a `data:image/png;base64,...` URI generated from the local `template/newlogo.png` reference; no external logo URL is required at delivery time
 - `poc-main/email/html/code-email.ftl` and `poc-main/email/text/code-email.ftl` customize the Email OTP message (subject, PFAS layout, embedded logo) using the same `data:image/png;base64,...` logo; the `email-authenticator` (Email OTP) execution/flow itself is unchanged, only its rendered template differs
+- `poc-main/email/html/password-reset.ftl` and `poc-main/email/text/password-reset.ftl` customize Reset Password mail with the same PFAS card/Base64-logo treatment and Thai `passwordResetSubject`
 - `loginTheme=poc-main` also carries the production PATTAYA login design (from local `template/configmap-pattaya-theme.yaml`): `login.ftl`, `login-update-password.ftl`, and `error.ftl` are the production templates adapted to use the local `newlogo.png` instead of the production's remote asset URLs; `mfa-method-selector.ftl` and `email-code-form.ftl` (the Email OTP code-entry screen) are PoC-specific pages restyled to match the same look, since they are not part of the production ConfigMap
-- These login pages use a dedicated stylesheet `poc-main/login/resources/css/pattaya-login.css`, kept separate from `poc.css` so the existing Verify Email / Update Email / Account Console styling is unaffected
+- PATTAYA theme coverage is documented in `docs/pattaya-theme-coverage.md`. Existing custom Login/MFA/OTP/password pages keep their production-derived implementations; Verify/Update Email keeps its existing `verify-layout.ftl` structure with PATTAYA-aligned `poc.css` tokens; reachable `keycloak.v2` pages render through local `poc-main/login/template.ftl` and `pattaya-login.css`. The end-user `poc-account` Account Console uses PATTAYA branding/colors as well. This is presentation-only; authentication, MFA, required-action, broker, account-linking, form contracts, and realm behavior are frozen.
 - `poc-main/login/messages/messages_en.properties` carries the production ConfigMap's Thai label overrides (username, password, doLogIn, etc.); named `_en` rather than `_th` because the realm has `internationalizationEnabled=false`, so the "en" bundle is always the one Keycloak resolves
 - Phase 2 uses `poc-phase2-browser-v3` with a conditional Trusted Browser subflow
 - Email OTP executions use `skipSetup=true` so users do not need to enroll an email-OTP credential before admin-enforced 2FA
 - Trusted Device Recorder uses `trustDays=30`; trust is created automatically after successful Email OTP and no checkbox is shown
+- Reset Credentials uses Keycloak's built-in REQUIRED Reset Password execution; `UPDATE_PASSWORD` must be registered/enabled. It is declared in `poc-realm.json` and `configure-auth-flows.ps1` repairs it idempotently for an existing realm.
 - Password expiration is phase-controlled: Phase 1 disables it; Phase 2 sets `forceExpiredPasswordChange(180)`
 - In Phase 2, local Keycloak passwords expire after 180 days and users must change them before authentication completes
 
@@ -52,7 +54,7 @@ Important settings:
 - access token is injected to backend as `Authorization: Bearer ...`
 - `/api/` routes to Backend
 - `/` routes to Frontend
-- `kc_action` is allow-listed for `VERIFY_EMAIL` and `UPDATE_EMAIL`; no other Application-Initiated Actions are forwarded
+- `kc_action` is allow-listed only for `VERIFY_EMAIL`, `UPDATE_EMAIL`, and `UPDATE_PASSWORD`; no other Application-Initiated Actions are forwarded
 - `clientSecret` is the actual Keycloak client secret `poc-app-secret`
 - `skipClaimsFromProfileURL=true` because this PoC does not need group/profile fallback
 - `backendLogoutURL` calls the Keycloak OIDC end-session endpoint with `{id_token}` so Sign out clears both oauth2-proxy and Keycloak SSO
@@ -94,7 +96,13 @@ Update Email action:
 /oauth2/start?rd=http%3A%2F%2Flocalhost%3A8000%2F&kc_action=UPDATE_EMAIL
 ```
 
-The realm registers `UPDATE_EMAIL` with `verifyEmail=true`. The PFAS login theme overrides `update-email.ftl` and the related `Confirmation email sent` / `Email updated` info screens; the email-update confirmation message also uses the PFAS email theme.
+Change Password action:
+
+```text
+/oauth2/start?rd=http%3A%2F%2Flocalhost%3A8000%2F&kc_action=UPDATE_PASSWORD
+```
+
+The authenticated frontend sends only the AIA request; password values are entered and submitted directly on Keycloak's PATTAYA `login-update-password.ftl` page. The PoC frontend/backend never receive the new password. The realm registers `UPDATE_EMAIL` with `verifyEmail=true`; its PFAS update-email and status/email templates remain unchanged.
 
 ## Backend
 

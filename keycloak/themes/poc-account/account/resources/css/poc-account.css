@@ -1,4 +1,4 @@
-/* PoC Account Console branding. Keycloak itself is forced to light mode via darkMode=false. */
+/* PATTAYA/PFAS Account Console branding. Keycloak itself is forced to light mode via darkMode=false. */
 
 :root {
   color-scheme: light;
@@ -9,8 +9,8 @@ body,
 #app,
 .pf-v5-c-page,
 .pf-v5-c-page__main {
-  background: #f6f8fb;
-  color: #111827;
+  background: #fff8f2;
+  color: #263238;
 }
 
 /* Header */
@@ -29,7 +29,7 @@ body,
 }
 
 .pf-v5-c-masthead__brand img {
-  content: url("../img/poc-mark.svg");
+  content: url("../img/newlogo.png");
   width: 40px;
   height: 40px;
   object-fit: contain;
@@ -63,12 +63,12 @@ body,
   min-height: 54px;
 }
 
-/* Current leaf item uses the blue accent. Expanded parent is neutral gray. */
+/* Current leaf item uses the same PATTAYA orange accent as the login theme. */
 .pf-v5-c-nav__item.pf-m-current:not(.pf-m-expandable) > .pf-v5-c-nav__link,
 .pf-v5-c-nav__link.pf-m-current {
-  background: #eaf3ff !important;
-  color: #1668dc !important;
-  border-inline-start-color: #1677ff !important;
+  background: #fff3e8 !important;
+  color: #e65100 !important;
+  border-inline-start-color: #e65100 !important;
 }
 
 .pf-v5-c-nav__item.pf-m-expandable.pf-m-expanded > button.pf-v5-c-nav__link,
@@ -87,8 +87,8 @@ body,
 .pf-v5-c-page__main,
 .pf-v5-c-page__main-section,
 .pf-v5-c-page__main-section.pf-m-light {
-  background: #f6f8fb !important;
-  color: #111827 !important;
+  background: #fff8f2 !important;
+  color: #263238 !important;
 }
 
 .pf-v5-c-page__main-section {
@@ -166,21 +166,21 @@ textarea::placeholder {
 
 /* Actions */
 .pf-v5-c-button.pf-m-primary {
-  background: #1677ff !important;
+  background: #e65100 !important;
   color: #ffffff !important;
-  border-radius: 8px;
+  border-radius: 999px;
 }
 
 .pf-v5-c-button.pf-m-primary:hover {
-  background: #0f5ed7 !important;
+  background: #bf360c !important;
 }
 
 .pf-v5-c-button.pf-m-link,
 a {
-  color: #1668dc;
+  color: #e65100;
 }
 
-/* PoC scope: hide these navigation entries only; routes/features remain available. */
+/* Existing PoC scope rule: hide these navigation entries only; routes/features remain available. */
 .pf-v5-c-nav__item:has(> .pf-v5-c-nav__link[href$="/account-security/device-activity"]),
 .pf-v5-c-nav__item:has(> .pf-v5-c-nav__link[href$="/applications"]) {
   display: none !important;

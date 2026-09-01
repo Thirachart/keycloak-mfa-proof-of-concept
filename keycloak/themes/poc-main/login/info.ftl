@@ -1,6 +1,8 @@
 <#assign isVerifyEmailInfo = messageHeader?? && (messageHeader == "confirmEmailAddressVerificationHeader" || messageHeader == msg("confirmEmailAddressVerificationHeader"))>
 <#assign isEmailUpdateSent = messageHeader?? && (messageHeader == "emailUpdateConfirmationSentTitle" || messageHeader == msg("emailUpdateConfirmationSentTitle"))>
 <#assign isEmailUpdated = messageHeader?? && (messageHeader == "emailUpdatedTitle" || messageHeader == msg("emailUpdatedTitle"))>
+<#assign isPasswordUpdated = messageHeader?? && (messageHeader == "accountUpdatedTitle" || messageHeader == msg("accountUpdatedTitle")) && message?has_content && (message.summary == msg("accountPasswordUpdatedMessage"))>
+<#assign isPasswordResetCompleted = isPasswordUpdated && !(pageRedirectUri?has_content) && !(actionUri?has_content)>
 
 <#if isVerifyEmailInfo>
     <#import "verify-layout.ftl" as verify>
@@ -53,6 +55,18 @@
         <div class="poc-verify-actions">
             <a class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">
                 กลับไปยังระบบ
+            </a>
+        </div>
+    </@verify.page>
+<#elseif isPasswordResetCompleted>
+    <#import "verify-layout.ftl" as verify>
+    <@verify.page title="เปลี่ยนรหัสผ่านสำเร็จ">
+        <p id="poc-password-updated-message" class="poc-verify-copy">
+            รหัสผ่านของคุณได้รับการเปลี่ยนเรียบร้อยแล้ว กรุณาเข้าสู่ระบบอีกครั้งด้วยรหัสผ่านใหม่
+        </p>
+        <div class="poc-verify-actions">
+            <a id="poc-password-login" class="poc-verify-button poc-verify-button-primary" href="${properties.pocLoginUrl}">
+                เข้าสู่ระบบด้วยรหัสผ่านใหม่
             </a>
         </div>
     </@verify.page>

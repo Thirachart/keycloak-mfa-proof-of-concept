@@ -15,7 +15,7 @@ body { background: #f6f7f9 !important; }
   min-height: 100vh;
   box-sizing: border-box;
   padding: 48px 24px 28px;
-  background: #f4f3f1 !important;
+  background: #fff8f2 !important;
   color: #44403c;
   font-family: 'Sarabun', 'Noto Sans Thai', Tahoma, Arial, sans-serif;
 }
@@ -114,7 +114,7 @@ body { background: #f6f7f9 !important; }
   justify-content: center;
   padding: 12px 28px;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 30px;
   font: inherit;
   font-size: 15px;
   font-weight: 700;
@@ -125,15 +125,15 @@ body { background: #f6f7f9 !important; }
 }
 
 .poc-verify-button-primary {
-  border-color: #f26d1f;
-  background: #f26d1f;
+  border-color: #e65100;
+  background: #e65100;
   color: #fff;
 }
 
 .poc-verify-button-primary:hover,
 .poc-verify-button-primary:focus-visible {
-  border-color: #dc5e17;
-  background: #dc5e17;
+  border-color: #bf360c;
+  background: #bf360c;
   color: #fff;
 }
 
@@ -152,7 +152,7 @@ body { background: #f6f7f9 !important; }
 
 .poc-verify-button:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(242, 109, 31, .2);
+  box-shadow: 0 0 0 3px rgba(230, 81, 0, .18);
 }
 
 .poc-verify-note {
@@ -200,8 +200,8 @@ body { background: #f6f7f9 !important; }
 }
 
 .poc-update-email-form input:not([type='hidden']):not([type='checkbox']):not([type='radio']):focus {
-  border-color: #f26d1f;
-  box-shadow: 0 0 0 3px rgba(242, 109, 31, .14);
+  border-color: #e65100;
+  box-shadow: 0 0 0 3px rgba(230, 81, 0, .12);
 }
 
 .poc-update-email-form [aria-invalid='true'] {
