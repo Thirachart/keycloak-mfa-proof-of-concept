@@ -1,0 +1,70 @@
+# Merge this snippet into spec.template.spec of the Keycloak Deployment/StatefulSet.
+# It reconstructs keycloak/themes/poc-main exactly under /opt/keycloak/themes/poc-main.
+volumes:
+  - name: pattaya-theme
+    configMap:
+      name: pattaya-theme-config
+      items:
+        - key: email__html__code-email.ftl
+          path: email/html/code-email.ftl
+        - key: email__html__email-update-confirmation.ftl
+          path: email/html/email-update-confirmation.ftl
+        - key: email__html__email-verification.ftl
+          path: email/html/email-verification.ftl
+        - key: email__html__password-reset.ftl
+          path: email/html/password-reset.ftl
+        - key: email__messages__messages_en.properties
+          path: email/messages/messages_en.properties
+        - key: email__messages__messages_th.properties
+          path: email/messages/messages_th.properties
+        - key: email__text__code-email.ftl
+          path: email/text/code-email.ftl
+        - key: email__text__email-update-confirmation.ftl
+          path: email/text/email-update-confirmation.ftl
+        - key: email__text__email-verification.ftl
+          path: email/text/email-verification.ftl
+        - key: email__text__password-reset.ftl
+          path: email/text/password-reset.ftl
+        - key: email__theme.properties
+          path: email/theme.properties
+        - key: login__email-code-form.ftl
+          path: login/email-code-form.ftl
+        - key: login__error.ftl
+          path: login/error.ftl
+        - key: login__info.ftl
+          path: login/info.ftl
+        - key: login__login.ftl
+          path: login/login.ftl
+        - key: login__login-update-password.ftl
+          path: login/login-update-password.ftl
+        - key: login__login-verify-email.ftl
+          path: login/login-verify-email.ftl
+        - key: login__messages__messages_en.properties
+          path: login/messages/messages_en.properties
+        - key: login__messages__messages_th.properties
+          path: login/messages/messages_th.properties
+        - key: login__mfa-method-selector.ftl
+          path: login/mfa-method-selector.ftl
+        - key: login__resources__css__pattaya-login.css
+          path: login/resources/css/pattaya-login.css
+        - key: login__resources__css__poc.css
+          path: login/resources/css/poc.css
+        - key: login__resources__img__login-img.png
+          path: login/resources/img/login-img.png
+        - key: login__resources__img__newlogo.png
+          path: login/resources/img/newlogo.png
+        - key: login__template.ftl
+          path: login/template.ftl
+        - key: login__theme.properties
+          path: login/theme.properties
+        - key: login__update-email.ftl
+          path: login/update-email.ftl
+        - key: login__verify-layout.ftl
+          path: login/verify-layout.ftl
+
+containers:
+  - name: keycloak
+    volumeMounts:
+      - name: pattaya-theme
+        mountPath: /opt/keycloak/themes/poc-main
+        readOnly: true
