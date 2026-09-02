@@ -292,65 +292,41 @@ data:
   email__theme.properties: |-
     parent=keycloak
   login__email-code-form.ftl: |-
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <title>${msg("doLogIn")}</title>
-        <link href="${url.resourcesPath}/css/pattaya-login.css" rel="stylesheet" />
-        <link rel="icon" type="image/x-icon" href="${url.resourcesPath}/img/newlogo.png"/>
-    </head>
-    <body>
-      <div class="login-container">
-    
-        <div class="login-left-panel" aria-hidden="true"></div>
-    
-        <div class="login-right-panel">
-            <div class="login-form-wrapper">
-    
-                <div class="login-header">
-                    <h1 class="system-title-en">PATTAYA FINANCIAL AND ACCOUNTING SYSTEM</h1>
-                    <h2 class="system-title-th">ยืนยันรหัส OTP</h2>
-                </div>
-    
-                <#if messagesPerField.existsError('emailCode')>
-                    <div class="alert-box" role="alert">
-                        ${kcSanitize(messagesPerField.get('emailCode'))?no_esc}
-                    </div>
-                <#elseif message?has_content && (message.type!'') == 'error'>
-                    <div class="alert-box" role="alert">
-                        ${message.summary?no_esc}
-                    </div>
-                </#if>
-    
-                <#assign otpLength = (codeLength!6)>
-                <form id="kc-otp-login-form" action="${url.loginAction}" method="post">
-    
-                    <p class="otp-hint">${msg("emailOtpForm", otpLength)}<#if maskedEmail??><br/><strong>${kcSanitize(maskedEmail)?no_esc}</strong></#if></p>
-    
-                    <div class="form-group">
-                        <input id="emailCode" name="emailCode" autocomplete="off" type="text" class="form-control otp-input"
-                               autofocus maxlength="${otpLength?c}"
-                               aria-invalid="<#if messagesPerField.existsError('emailCode')>true</#if>"
-                               <#if maxAttemptsReached?? && maxAttemptsReached>disabled</#if> />
-    
-                    </div>
-    
-                    <div class="otp-buttons">
-                        <#if !(maxAttemptsReached?? && maxAttemptsReached)>
-                            <button class="btn-primary" name="login" type="submit">${msg("doLogIn")}</button>
-                        </#if>
-                        <button class="btn-cancel" name="resend" type="submit">${msg("resendCode")}</button>
-                        <button class="btn-cancel" name="cancel" type="submit">${msg("doCancel")}</button>
-                    </div>
-                </form>
-    
+    <#import "verify-layout.ftl" as verify>
+    <#assign otpLength = (codeLength!6)>
+    <@verify.page title="ยืนยันรหัส OTP">
+        <#if messagesPerField.existsError('emailCode')>
+            <div class="poc-card-message poc-card-message-error" role="alert">
+                ${kcSanitize(messagesPerField.get('emailCode'))?no_esc}
             </div>
-        </div>
-      </div>
-    </body>
-    </html>
+        <#elseif message?has_content && (message.type!'') == 'error'>
+            <div class="poc-card-message poc-card-message-error" role="alert">
+                ${message.summary?no_esc}
+            </div>
+        </#if>
+    
+        <form id="kc-otp-login-form" class="poc-card-form" action="${url.loginAction}" method="post">
+            <p class="poc-verify-copy poc-card-intro">
+                ${msg("emailOtpForm", otpLength)}<#if maskedEmail??><br/><strong>${kcSanitize(maskedEmail)?no_esc}</strong></#if>
+            </p>
+    
+            <div class="poc-card-field">
+                <input id="emailCode" name="emailCode" autocomplete="off" type="text" class="poc-card-control poc-otp-input"
+                       autofocus maxlength="${otpLength?c}"
+                       aria-label="รหัส OTP"
+                       aria-invalid="<#if messagesPerField.existsError('emailCode')>true</#if>"
+                       <#if maxAttemptsReached?? && maxAttemptsReached>disabled</#if> />
+            </div>
+    
+            <div class="poc-verify-actions poc-card-actions poc-card-actions-stacked">
+                <#if !(maxAttemptsReached?? && maxAttemptsReached)>
+                    <button class="poc-verify-button poc-verify-button-primary" name="login" type="submit">${msg("doLogIn")}</button>
+                </#if>
+                <button class="poc-verify-button poc-verify-button-secondary" name="resend" type="submit">${msg("resendCode")}</button>
+                <button class="poc-verify-button poc-verify-button-secondary" name="cancel" type="submit">${msg("doCancel")}</button>
+            </div>
+        </form>
+    </@verify.page>
   login__error.ftl: |-
     <!DOCTYPE html>
     <html>
@@ -401,7 +377,8 @@ data:
     <#assign isVerifyEmailInfo = messageHeader?? && (messageHeader == "confirmEmailAddressVerificationHeader" || messageHeader == msg("confirmEmailAddressVerificationHeader"))>
     <#assign isEmailUpdateSent = messageHeader?? && (messageHeader == "emailUpdateConfirmationSentTitle" || messageHeader == msg("emailUpdateConfirmationSentTitle"))>
     <#assign isEmailUpdated = messageHeader?? && (messageHeader == "emailUpdatedTitle" || messageHeader == msg("emailUpdatedTitle"))>
-    <#assign isPasswordUpdated = messageHeader?? && (messageHeader == "accountUpdatedTitle" || messageHeader == msg("accountUpdatedTitle")) && message?has_content && (message.summary == msg("accountPasswordUpdatedMessage"))>
+    <#assign isAccountUpdated = messageHeader?? && (messageHeader == "accountUpdatedTitle" || messageHeader == msg("accountUpdatedTitle"))>
+    <#assign isPasswordUpdated = isAccountUpdated && message?has_content && (message.summary == msg("accountPasswordUpdatedMessage"))>
     <#assign isPasswordResetCompleted = isPasswordUpdated && !(pageRedirectUri?has_content) && !(actionUri?has_content)>
     
     <#if isVerifyEmailInfo>
@@ -468,6 +445,42 @@ data:
                 <a id="poc-password-login" class="poc-verify-button poc-verify-button-primary" href="${properties.pocLoginUrl}">
                     เข้าสู่ระบบด้วยรหัสผ่านใหม่
                 </a>
+            </div>
+        </@verify.page>
+    <#elseif isPasswordUpdated>
+        <#import "verify-layout.ftl" as verify>
+        <@verify.page title="เปลี่ยนรหัสผ่านสำเร็จ">
+            <p id="poc-password-updated-message" class="poc-verify-copy">
+                ${message.summary}
+            </p>
+            <div class="poc-verify-actions">
+                <#if pageRedirectUri?has_content>
+                    <a id="poc-password-return" class="poc-verify-button poc-verify-button-primary" href="${pageRedirectUri}">กลับไปยังระบบ</a>
+                <#elseif actionUri?has_content>
+                    <a id="poc-password-continue" class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
+                <#elseif (client.baseUrl)?has_content>
+                    <a id="poc-password-return" class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
+                <#else>
+                    <a id="poc-password-return" class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
+                </#if>
+            </div>
+        </@verify.page>
+    <#elseif isAccountUpdated>
+        <#import "verify-layout.ftl" as verify>
+        <@verify.page title="${msg('accountUpdatedTitle')}">
+            <p id="poc-account-updated-message" class="poc-verify-copy">
+                ${message.summary}
+            </p>
+            <div class="poc-verify-actions">
+                <#if pageRedirectUri?has_content>
+                    <a id="poc-account-return" class="poc-verify-button poc-verify-button-primary" href="${pageRedirectUri}">กลับไปยังระบบ</a>
+                <#elseif actionUri?has_content>
+                    <a id="poc-account-continue" class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
+                <#elseif (client.baseUrl)?has_content>
+                    <a id="poc-account-return" class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
+                <#else>
+                    <a id="poc-account-return" class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
+                </#if>
             </div>
         </@verify.page>
     <#else>
@@ -615,97 +628,107 @@ data:
     </body>
     </html>
   login__login-update-password.ftl: |-
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <title>${msg("updatePasswordTitle")}</title>
-        <link href="${url.resourcesPath}/css/pattaya-login.css" rel="stylesheet" />
-        <link rel="icon" type="image/x-icon" href="${url.resourcesPath}/img/newlogo.png"/>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    </head>
-    <body>
-      <div class="login-container">
-    
-        <div class="login-left-panel" aria-hidden="true"></div>
-    
-        <div class="login-right-panel">
-            <div class="login-form-wrapper">
-    
-                <div class="login-header">
-                    <h1 class="system-title-en">PATTAYA FINANCIAL AND ACCOUNTING SYSTEM</h1>
-                    <h2 class="system-title-th">ระบบการเงินและบัญชีเมืองพัทยา</h2>
-                </div>
-    
-                <div class="update-password-title">
-                    <i class="fa fa-lock" style="margin-right:8px;color:#e65100;"></i>${msg("updatePasswordTitle")}
-                </div>
-    
-                <#if message?has_content && (message.type!'') == 'error'>
-                    <div class="alert-box">
-                        ${message.summary?no_esc}
-                    </div>
-                </#if>
-    
-                <form id="kc-passwd-update-form" action="${url.loginAction}" method="post">
-                    <input type="text" id="username" name="username" value="${username!''}" autocomplete="username" readonly style="display:none;" />
-    
-                    <div class="form-group">
-                        <label for="password-new" class="form-label">${msg("passwordNew")}</label>
-                        <div class="password-wrapper">
-                            <input id="password-new" class="form-control" name="password-new" type="password" autofocus autocomplete="new-password" />
-                            <button type="button" class="toggle-password" onclick="togglePassword('password-new','icon-new')" tabindex="-1" aria-label="แสดง/ซ่อนรหัสผ่านใหม่">
-                                <i id="icon-new" class="fa fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-    
-                    <div class="form-group">
-                        <label for="password-confirm" class="form-label">${msg("passwordConfirmNew")}</label>
-                        <div class="password-wrapper">
-                            <input id="password-confirm" class="form-control" name="password-confirm" type="password" autocomplete="new-password" />
-                            <button type="button" class="toggle-password" onclick="togglePassword('password-confirm','icon-confirm')" tabindex="-1" aria-label="แสดง/ซ่อนยืนยันรหัสผ่าน">
-                                <i id="icon-confirm" class="fa fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-    
-                    <div class="form-group" style="margin-top:8px;">
-                        <button class="btn-primary" type="submit">
-                            ${msg("doSubmit")}
-                        </button>
-                    </div>
-    
-                    <#if isAppInitiatedAction??>
-                        <div class="form-group">
-                            <button class="btn-cancel" type="submit" name="cancel-aia" value="true">
-                                ${msg("doCancel")}
-                            </button>
-                        </div>
-                    </#if>
-                </form>
-    
+    <#import "verify-layout.ftl" as verify>
+    <@verify.page title="${msg('updatePasswordTitle')}">
+        <#if message?has_content && (message.type!'') == 'error'>
+            <div class="poc-card-message poc-card-message-error" role="alert">
+                ${message.summary?no_esc}
             </div>
-        </div>
-      </div>
-      <script>
-        function togglePassword(inputId, iconId) {
-          var input = document.getElementById(inputId);
-          var icon = document.getElementById(iconId);
-          if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-          } else {
-            input.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
+        </#if>
+    
+        <form id="kc-passwd-update-form" class="poc-card-form" action="${url.loginAction}" method="post">
+            <input type="text" id="username" name="username" value="${username!''}" autocomplete="username" readonly style="display:none;" />
+    
+            <div class="poc-card-field">
+                <label for="password-new">${msg("passwordNew")}</label>
+                <div class="poc-password-wrapper">
+                    <input id="password-new" class="poc-card-control" name="password-new" type="password" autofocus autocomplete="new-password" />
+                    <button type="button" class="poc-password-toggle" onclick="togglePassword('password-new','toggle-new')" aria-label="แสดงหรือซ่อนรหัสผ่านใหม่">
+                        <span id="toggle-new">แสดง</span>
+                    </button>
+                </div>
+            </div>
+    
+            <div class="poc-card-field">
+                <label for="password-confirm">${msg("passwordConfirmNew")}</label>
+                <div class="poc-password-wrapper">
+                    <input id="password-confirm" class="poc-card-control" name="password-confirm" type="password" autocomplete="new-password" />
+                    <button type="button" class="poc-password-toggle" onclick="togglePassword('password-confirm','toggle-confirm')" aria-label="แสดงหรือซ่อนยืนยันรหัสผ่าน">
+                        <span id="toggle-confirm">แสดง</span>
+                    </button>
+                </div>
+            </div>
+    
+            <div class="poc-verify-actions poc-card-actions poc-card-actions-stacked">
+                <button class="poc-verify-button poc-verify-button-primary" type="submit">
+                    ${msg("doSubmit")}
+                </button>
+                <#if isAppInitiatedAction??>
+                    <button class="poc-verify-button poc-verify-button-secondary" type="submit" name="cancel-aia" value="true">
+                        ${msg("doCancel")}
+                    </button>
+                </#if>
+            </div>
+        </form>
+    
+        <script>
+          function togglePassword(inputId, labelId) {
+            var input = document.getElementById(inputId);
+            var label = document.getElementById(labelId);
+            if (input.type === 'password') {
+              input.type = 'text';
+              label.textContent = 'ซ่อน';
+            } else {
+              input.type = 'password';
+              label.textContent = 'แสดง';
+            }
           }
-        }
-      </script>
-    </body>
-    </html>
+        </script>
+    
+        <#if isAppInitiatedAction??>
+          <script>
+            (function () {
+              var cookieName = 'poc_password_aia_state';
+    
+              function cookieSuffix() {
+                var suffix = '; Path=/; SameSite=Lax';
+                var host = window.location.hostname;
+                if (window.location.protocol === 'https:') suffix += '; Secure';
+                if (host === 'pfas.pattaya.go.th' || host.endsWith('.pfas.pattaya.go.th')) {
+                  suffix += '; Domain=.pfas.pattaya.go.th';
+                }
+                return suffix;
+              }
+    
+              function setAiaState(value) {
+                document.cookie = cookieName + '=' + encodeURIComponent(value) + cookieSuffix();
+              }
+    
+              function clearAiaState() {
+                document.cookie = cookieName + '=; Max-Age=0' + cookieSuffix();
+              }
+    
+              <#if message?has_content && (message.type!'') == 'error'>
+                setAiaState('error');
+              <#else>
+                clearAiaState();
+              </#if>
+    
+              var form = document.getElementById('kc-passwd-update-form');
+              if (form) {
+                form.addEventListener('submit', function (event) {
+                  var submitter = event.submitter;
+                  if (submitter && submitter.name === 'cancel-aia') {
+                    setAiaState('cancelled');
+                  } else {
+                    setAiaState('submitted');
+                  }
+                });
+              }
+            })();
+          </script>
+        </#if>
+    </@verify.page>
   login__login-verify-email.ftl: |-
     <#import "verify-layout.ftl" as verify>
     <@verify.page title="ยืนยันอีเมลของคุณ">
@@ -899,71 +922,46 @@ data:
     emailUpdatedTitle=อัปเดตอีเมลแล้ว
     emailUpdated=เปลี่ยนอีเมลของบัญชีเป็น {0} เรียบร้อยแล้ว
   login__mfa-method-selector.ftl: |-
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <title>${msg("loginTitle",(realm.displayName!''))}</title>
-        <link href="${url.resourcesPath}/css/pattaya-login.css" rel="stylesheet" />
-        <link rel="icon" type="image/x-icon" href="${url.resourcesPath}/img/newlogo.png"/>
-    </head>
-    <body>
-      <div class="login-container">
-    
-        <div class="login-left-panel" aria-hidden="true"></div>
-    
-        <div class="login-right-panel">
-            <div class="login-form-wrapper">
-    
-                <div class="login-header">
-                    <h1 class="system-title-en">PATTAYA FINANCIAL AND ACCOUNTING SYSTEM</h1>
-                    <h2 class="system-title-th">เลือกวิธียืนยันตัวตน</h2>
-                </div>
-    
-                <#if message?has_content && (message.type!'') == 'error'>
-                    <div class="alert-box">
-                        ${message.summary?no_esc}
-                    </div>
-                </#if>
-    
-                <form id="kc-mfa-method-selector-form" action="${url.loginAction}" method="post">
-                    <p class="mfa-intro">กรุณาเลือกวิธีที่ต้องการใช้ยืนยันตัวตนสำหรับการเข้าสู่ระบบครั้งนี้</p>
-    
-                    <label class="mfa-option" for="mfa-email">
-                        <input id="mfa-email" type="radio" name="mfa_method" value="email" checked />
-                        <span>
-                            <strong>รหัส OTP ทางอีเมล</strong>
-                            <small>ส่งรหัสใช้ครั้งเดียวไปยังอีเมลที่ยืนยันแล้วของคุณ</small>
-                        </span>
-                    </label>
-    
-                    <div class="mfa-option mfa-option-disabled" aria-disabled="true">
-                        <input type="radio" disabled />
-                        <span>
-                            <strong>แอปยืนยันตัวตน</strong>
-                            <small>ยังไม่เปิดใช้งานใน PoC นี้</small>
-                        </span>
-                    </div>
-    
-                    <div class="mfa-option mfa-option-disabled" aria-disabled="true">
-                        <input type="radio" disabled />
-                        <span>
-                            <strong>พาสคีย์ / WebAuthn</strong>
-                            <small>ยังไม่เปิดใช้งานใน PoC นี้</small>
-                        </span>
-                    </div>
-    
-                    <div class="mfa-actions">
-                        <button class="btn-primary" type="submit">${msg("doContinue")}</button>
-                    </div>
-                </form>
-    
+    <#import "verify-layout.ftl" as verify>
+    <@verify.page title="เลือกวิธียืนยันตัวตน">
+        <#if message?has_content && (message.type!'') == 'error'>
+            <div class="poc-card-message poc-card-message-error" role="alert">
+                ${message.summary?no_esc}
             </div>
-        </div>
-      </div>
-    </body>
-    </html>
+        </#if>
+    
+        <form id="kc-mfa-method-selector-form" class="poc-card-form" action="${url.loginAction}" method="post">
+            <p class="poc-verify-copy poc-card-intro">กรุณาเลือกวิธีที่ต้องการใช้ยืนยันตัวตนสำหรับการเข้าสู่ระบบครั้งนี้</p>
+    
+            <label class="poc-mfa-option" for="mfa-email">
+                <input id="mfa-email" type="radio" name="mfa_method" value="email" checked />
+                <span>
+                    <strong>รหัส OTP ทางอีเมล</strong>
+                    <small>ส่งรหัสใช้ครั้งเดียวไปยังอีเมลที่ยืนยันแล้วของคุณ</small>
+                </span>
+            </label>
+    
+            <div class="poc-mfa-option poc-mfa-disabled" aria-disabled="true">
+                <input type="radio" disabled />
+                <span>
+                    <strong>แอปยืนยันตัวตน</strong>
+                    <small>ยังไม่เปิดใช้งานใน PoC นี้</small>
+                </span>
+            </div>
+    
+            <div class="poc-mfa-option poc-mfa-disabled" aria-disabled="true">
+                <input type="radio" disabled />
+                <span>
+                    <strong>พาสคีย์ / WebAuthn</strong>
+                    <small>ยังไม่เปิดใช้งานใน PoC นี้</small>
+                </span>
+            </div>
+    
+            <div class="poc-verify-actions poc-card-actions">
+                <button class="poc-verify-button poc-verify-button-primary" type="submit">${msg("doContinue")}</button>
+            </div>
+        </form>
+    </@verify.page>
   login__resources__css__pattaya-login.css: |-
     /* Import Font ภาษาไทย */
     @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap');
@@ -1630,6 +1628,166 @@ data:
       margin-top: 24px;
     }
     
+    /* Shared PFAS card forms for every non-login browser page. */
+    .pattaya-inherited-page.poc-verify-body {
+      display: block !important;
+      height: auto !important;
+      min-height: 100vh !important;
+    }
+    
+    .poc-inherited-card {
+      width: min(620px, 100%);
+    }
+    
+    .poc-card-form {
+      margin-top: 24px;
+    }
+    
+    .poc-card-intro {
+      margin-bottom: 22px;
+    }
+    
+    .poc-card-field {
+      margin-bottom: 18px;
+    }
+    
+    .poc-card-form label:not(.poc-mfa-option),
+    .poc-card-field > label {
+      display: block;
+      margin: 0 0 8px;
+      color: #292524;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+    
+    .poc-card-control {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid #d6d3d1;
+      border-radius: 8px;
+      background: #fff;
+      color: #1c1917;
+      font: inherit;
+      font-size: 15px;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    
+    .poc-card-control:focus {
+      border-color: #e65100;
+      box-shadow: 0 0 0 3px rgba(230, 81, 0, .12);
+    }
+    
+    .poc-card-control[aria-invalid='true'] {
+      border-color: #b91c1c;
+    }
+    
+    .poc-card-control:disabled {
+      background: #f5f5f4;
+      color: #a8a29e;
+      cursor: not-allowed;
+    }
+    
+    .poc-card-message {
+      margin: 0 0 20px;
+      padding: 12px 14px;
+      border: 1px solid #e7e5e4;
+      border-radius: 8px;
+      background: #fafaf9;
+      color: #57534e;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    
+    .poc-card-message-error {
+      border-color: #fecaca;
+      background: #fef2f2;
+      color: #991b1b;
+    }
+    
+    .poc-card-message-success {
+      border-color: #bbf7d0;
+      background: #f0fdf4;
+      color: #166534;
+    }
+    
+    .poc-card-message-warning {
+      border-color: #fde68a;
+      background: #fffbeb;
+      color: #92400e;
+    }
+    
+    .poc-card-message-info {
+      border-color: #fed7aa;
+      background: #fff7ed;
+      color: #9a3412;
+    }
+    
+    .poc-card-actions {
+      margin-top: 24px;
+    }
+    
+    .poc-card-actions-stacked {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .poc-card-actions-stacked .poc-verify-button {
+      width: 100%;
+    }
+    
+    .poc-otp-input {
+      font-size: 22px;
+      letter-spacing: 6px;
+      text-align: center;
+    }
+    
+    .poc-password-wrapper {
+      position: relative;
+    }
+    
+    .poc-password-wrapper .poc-card-control {
+      padding-right: 72px;
+    }
+    
+    .poc-password-toggle {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      min-width: 48px;
+      padding: 6px 8px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: #e65100;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    
+    .poc-password-toggle:hover,
+    .poc-password-toggle:focus-visible {
+      background: #fff7ed;
+      outline: none;
+    }
+    
+    .pattaya-inherited-page .pattaya-flow-title {
+      margin-bottom: 16px;
+    }
+    
+    .pattaya-inherited-page .pattaya-inherited-form:first-of-type:empty {
+      display: none;
+    }
+    
+    .pattaya-inherited-page .pattaya-keycloak-footer {
+      margin-top: 22px;
+    }
+    
     @media (max-width: 640px) {
       .poc-verify-body {
         padding: 24px 14px;
@@ -1749,80 +1907,82 @@ data:
         const isFirefox = true;
       </script>
     </head>
-    <body id="keycloak-bg" class="${properties.kcBodyClass!} pattaya-inherited-page ${bodyClass}" data-page-id="login-${pageId}">
-      <div class="login-container">
-        <div class="login-left-panel" aria-hidden="true"></div>
-    
-        <div class="login-right-panel">
-          <div class="login-form-wrapper">
-            <div class="login-header">
-              <h1 class="system-title-en">PATTAYA FINANCIAL AND ACCOUNTING SYSTEM</h1>
-              <h2 class="system-title-th">ระบบการเงินและบัญชีเมืองพัทยา</h2>
-            </div>
-    
-            <section class="pattaya-flow-section" role="main">
-              <div class="pattaya-flow-heading-row">
-                <h3 class="update-password-title pattaya-flow-title" id="kc-page-title"><#nested "header"></h3>
-                <#if realm.internationalizationEnabled && locale.supported?size gt 1>
-                  <select class="pattaya-language-select" aria-label="${msg("languages")}" id="login-select-toggle"
-                          onchange="if (this.value) window.location.href=this.value">
-                    <#list locale.supported?sort_by("label") as l>
-                      <option value="${l.url}" ${(l.languageTag == locale.currentLanguageTag)?then('selected','')}>${l.label}</option>
-                    </#list>
-                  </select>
-                </#if>
-              </div>
-    
-              <#if !(auth?has_content && auth.showUsername() && !auth.showResetCredentials())>
-                <#if displayRequiredFields>
-                  <p class="pattaya-required-fields"><span aria-hidden="true">*</span> ${msg("requiredFields")}</p>
-                </#if>
-              <#else>
-                <#if displayRequiredFields>
-                  <p class="pattaya-required-fields"><span aria-hidden="true">*</span> ${msg("requiredFields")}</p>
-                </#if>
-                <div class="pattaya-inherited-form pattaya-shown-username">
-                  <#nested "show-username">
-                  <@username />
-                </div>
-              </#if>
-    
-              <#if displayMessage && message?has_content && (message.type != 'warning' || !isAppInitiatedAction??)>
-                <div class="alert-box pattaya-alert-${message.type!'info'}" role="alert">
-                  <span class="kc-feedback-text">${message.summary}</span>
-                </div>
-              </#if>
-    
-              <div class="pattaya-inherited-form">
-                <#nested "form">
-              </div>
-    
-              <#if auth?has_content && auth.showTryAnotherWayLink()>
-                <form id="kc-select-try-another-way-form" class="pattaya-inherited-form" action="${url.loginAction}" method="post" novalidate="novalidate">
-                  <input type="hidden" name="tryAnotherWay" value="on"/>
-                  <a id="try-another-way" href="javascript:document.forms['kc-select-try-another-way-form'].requestSubmit()" class="btn-cancel pattaya-action-link">
-                    ${msg("doTryAnotherWay")}
-                  </a>
-                </form>
-              </#if>
-    
-              <div class="pattaya-social-providers">
-                <#nested "socialProviders">
-              </div>
-    
-              <#if displayInfo>
-                <div id="kc-info" class="pattaya-flow-info">
-                  <#nested "info">
-                </div>
-              </#if>
-    
-              <div class="pattaya-keycloak-footer">
-                <@loginFooter.content/>
-              </div>
-            </section>
+    <body id="keycloak-bg" class="${properties.kcBodyClass!} pattaya-inherited-page poc-verify-body ${bodyClass}" data-page-id="login-${pageId}">
+      <main class="poc-verify-card poc-inherited-card" role="main">
+        <div class="poc-verify-brand">
+          <img class="poc-verify-logo" src="${url.resourcesPath}/img/newlogo.png" alt="PFAS" width="40" height="40" />
+          <div class="poc-verify-brand-copy">
+            <div class="poc-verify-brand-name">PFAS</div>
+            <div class="poc-verify-brand-subtitle">ระบบการเงินและบัญชีเมืองพัทยา</div>
           </div>
         </div>
-      </div>
+        <div class="poc-verify-divider"></div>
+    
+        <section class="pattaya-flow-section" role="main">
+          <div class="pattaya-flow-heading-row">
+            <h1 class="poc-verify-title pattaya-flow-title" id="kc-page-title"><#nested "header"></h1>
+            <#if realm.internationalizationEnabled && locale.supported?size gt 1>
+              <select class="pattaya-language-select" aria-label="${msg("languages")}" id="login-select-toggle"
+                      onchange="if (this.value) window.location.href=this.value">
+                <#list locale.supported?sort_by("label") as l>
+                  <option value="${l.url}" ${(l.languageTag == locale.currentLanguageTag)?then('selected','')}>${l.label}</option>
+                </#list>
+              </select>
+            </#if>
+          </div>
+    
+          <#if !(auth?has_content && auth.showUsername() && !auth.showResetCredentials())>
+            <#if displayRequiredFields>
+              <p class="pattaya-required-fields"><span aria-hidden="true">*</span> ${msg("requiredFields")}</p>
+            </#if>
+          <#else>
+            <#if displayRequiredFields>
+              <p class="pattaya-required-fields"><span aria-hidden="true">*</span> ${msg("requiredFields")}</p>
+            </#if>
+            <div class="pattaya-inherited-form pattaya-shown-username">
+              <#nested "show-username">
+              <@username />
+            </div>
+          </#if>
+    
+          <#if displayMessage && message?has_content && (message.type != 'warning' || !isAppInitiatedAction??)>
+            <div class="poc-card-message poc-card-message-${message.type!'info'}" role="alert">
+              <span class="kc-feedback-text">${message.summary}</span>
+            </div>
+          </#if>
+    
+          <div class="pattaya-inherited-form">
+            <#nested "form">
+          </div>
+    
+          <#if auth?has_content && auth.showTryAnotherWayLink()>
+            <form id="kc-select-try-another-way-form" class="pattaya-inherited-form" action="${url.loginAction}" method="post" novalidate="novalidate">
+              <input type="hidden" name="tryAnotherWay" value="on"/>
+              <a id="try-another-way" href="javascript:document.forms['kc-select-try-another-way-form'].requestSubmit()" class="poc-verify-button poc-verify-button-secondary pattaya-action-link">
+                ${msg("doTryAnotherWay")}
+              </a>
+            </form>
+          </#if>
+    
+          <div class="pattaya-social-providers">
+            <#nested "socialProviders">
+          </div>
+    
+          <#if displayInfo>
+            <div id="kc-info" class="pattaya-flow-info">
+              <#nested "info">
+            </div>
+          </#if>
+    
+          <div class="pattaya-keycloak-footer">
+            <@loginFooter.content/>
+          </div>
+        </section>
+    
+        <div class="poc-verify-divider poc-verify-divider-footer"></div>
+        <p class="poc-verify-note">หากท่านไม่ได้เป็นผู้ทำรายการนี้ กรุณาเพิกเฉยและไม่ต้องดำเนินการใด ๆ เพิ่มเติม</p>
+      </main>
+      <footer class="poc-verify-footer">&copy; เมืองพัทยา &middot; ระบบการเงินและบัญชีเมืองพัทยา (PFAS)</footer>
     </body>
     </html>
     </#macro>

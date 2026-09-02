@@ -1,5 +1,5 @@
 # Merge this snippet into spec.template.spec of the Keycloak Deployment/StatefulSet.
-# It reconstructs keycloak/themes/poc-main exactly under /opt/keycloak/themes/poc-main.
+# It reconstructs keycloak/themes/poc-main exactly under /opt/keycloak/themes/pattaya-theme.
 volumes:
   - name: pattaya-theme
     configMap:
@@ -66,5 +66,5 @@ containers:
   - name: keycloak
     volumeMounts:
       - name: pattaya-theme
-        mountPath: /opt/keycloak/themes/poc-main
+        mountPath: /opt/keycloak/themes/pattaya-theme
         readOnly: true

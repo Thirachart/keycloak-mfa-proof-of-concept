@@ -1,6 +1,7 @@
 param(
     [string]$Namespace = "pits-app",
     [string]$ConfigMapName = "pattaya-theme-config",
+    [string]$ThemeName = "pattaya-theme",
     [string]$OutputDir = ""
 )
 
@@ -124,7 +125,7 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 $lines = New-Object System.Collections.Generic.List[string]
 $lines.Add("# Merge this snippet into spec.template.spec of the Keycloak Deployment/StatefulSet.")
-$lines.Add("# It reconstructs keycloak/themes/poc-main exactly under /opt/keycloak/themes/poc-main.")
+$lines.Add("# It reconstructs keycloak/themes/poc-main exactly under /opt/keycloak/themes/$ThemeName.")
 $lines.Add("volumes:")
 $lines.Add("  - name: pattaya-theme")
 $lines.Add("    configMap:")
@@ -139,7 +140,7 @@ $lines.Add("containers:")
 $lines.Add("  - name: keycloak")
 $lines.Add("    volumeMounts:")
 $lines.Add("      - name: pattaya-theme")
-$lines.Add("        mountPath: /opt/keycloak/themes/poc-main")
+$lines.Add("        mountPath: /opt/keycloak/themes/$ThemeName")
 $lines.Add("        readOnly: true")
 
 [System.IO.File]::WriteAllText(
