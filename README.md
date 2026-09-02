@@ -153,14 +153,14 @@ The `poc-main` login theme integrates the real production login design, based on
 Overridden templates:
 
 - `login.ftl` — username/password form, two-panel layout with PATTAYA/PFAS branding
-- `login-update-password.ftl` — forced password-change screen (Phase 2 180-day expiry)
+- `login-update-password.ftl` — Change/Reset/forced password screen using the same PFAS card language as Update Email
 - `error.ftl` — generic Keycloak error page
-- `mfa-method-selector.ftl` — restyled to match the same visual language; this page is PoC-specific and was not part of the production ConfigMap
-- `email-code-form.ftl` — the Email OTP code-entry screen (overrides `keycloak-2fa-email-authenticator`'s default template); also PoC-specific, not part of the production ConfigMap
+- `mfa-method-selector.ftl` — PFAS card MFA selector; PoC-specific and not part of the production ConfigMap
+- `email-code-form.ftl` — PFAS card Email OTP code-entry screen (overrides `keycloak-2fa-email-authenticator`'s default template); PoC-specific
 
 These pages use a dedicated stylesheet, `resources/css/pattaya-login.css`. The production ConfigMap's remote PFAS logo/background URLs are replaced with the PoC's local `newlogo.png` where adapted locally.
 
-Theme coverage now extends the PATTAYA/PFAS visual family across every reachable end-user-facing page rendered by the main `poc` realm. Existing Verify Email / Update Email pages keep their proven PFAS card layout with PATTAYA-aligned visual tokens, while reachable pages inherited from `keycloak.v2` (for example reset-credentials, missing-email `UPDATE_PROFILE`, generic status/action-token pages, and main-realm broker/account-linking screens) render through the local shared PATTAYA `template.ftl`. The end-user `poc-account` Account Console is also aligned to PATTAYA branding. Theme changes remain presentation-only except for one confirmed Reset Password configuration repair: `UPDATE_PASSWORD` is restored because the realm's explicit required-action list had omitted it even though the built-in Reset Credentials flow requires it. Keycloak Admin Console and the intentionally distinct `lab-idp` theme remain out of scope.
+Theme coverage now uses two intentional browser shells in the main `poc` realm: the primary Login page keeps the production two-panel layout, while non-login auth/required-action pages use the centered PFAS card shell already established by Update Email / Verify Email. This includes MFA selector, Email OTP, Change/Reset/forced password, and reachable pages inherited from `keycloak.v2` such as reset-credentials, missing-email `UPDATE_PROFILE`, page-expired, and broker/account-linking pages. Detailed scope and acceptance criteria are in `docs/non-login-card-theme.md`. The end-user `poc-account` Account Console remains separately aligned to PATTAYA branding. Keycloak Admin Console and the intentionally distinct `lab-idp` theme remain out of scope.
 
 Implementation scope, logic-freeze rules, reachability inventory, and acceptance criteria are documented in `docs/pattaya-theme-coverage.md`.
 

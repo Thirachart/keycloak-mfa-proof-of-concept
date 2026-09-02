@@ -1,7 +1,8 @@
 <#assign isVerifyEmailInfo = messageHeader?? && (messageHeader == "confirmEmailAddressVerificationHeader" || messageHeader == msg("confirmEmailAddressVerificationHeader"))>
 <#assign isEmailUpdateSent = messageHeader?? && (messageHeader == "emailUpdateConfirmationSentTitle" || messageHeader == msg("emailUpdateConfirmationSentTitle"))>
 <#assign isEmailUpdated = messageHeader?? && (messageHeader == "emailUpdatedTitle" || messageHeader == msg("emailUpdatedTitle"))>
-<#assign isPasswordUpdated = messageHeader?? && (messageHeader == "accountUpdatedTitle" || messageHeader == msg("accountUpdatedTitle")) && message?has_content && (message.summary == msg("accountPasswordUpdatedMessage"))>
+<#assign isAccountUpdated = messageHeader?? && (messageHeader == "accountUpdatedTitle" || messageHeader == msg("accountUpdatedTitle"))>
+<#assign isPasswordUpdated = isAccountUpdated && message?has_content && (message.summary == msg("accountPasswordUpdatedMessage"))>
 <#assign isPasswordResetCompleted = isPasswordUpdated && !(pageRedirectUri?has_content) && !(actionUri?has_content)>
 
 <#if isVerifyEmailInfo>
@@ -68,6 +69,42 @@
             <a id="poc-password-login" class="poc-verify-button poc-verify-button-primary" href="${properties.pocLoginUrl}">
                 เข้าสู่ระบบด้วยรหัสผ่านใหม่
             </a>
+        </div>
+    </@verify.page>
+<#elseif isPasswordUpdated>
+    <#import "verify-layout.ftl" as verify>
+    <@verify.page title="เปลี่ยนรหัสผ่านสำเร็จ">
+        <p id="poc-password-updated-message" class="poc-verify-copy">
+            ${message.summary}
+        </p>
+        <div class="poc-verify-actions">
+            <#if pageRedirectUri?has_content>
+                <a id="poc-password-return" class="poc-verify-button poc-verify-button-primary" href="${pageRedirectUri}">กลับไปยังระบบ</a>
+            <#elseif actionUri?has_content>
+                <a id="poc-password-continue" class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
+            <#elseif (client.baseUrl)?has_content>
+                <a id="poc-password-return" class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
+            <#else>
+                <a id="poc-password-return" class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
+            </#if>
+        </div>
+    </@verify.page>
+<#elseif isAccountUpdated>
+    <#import "verify-layout.ftl" as verify>
+    <@verify.page title="${msg('accountUpdatedTitle')}">
+        <p id="poc-account-updated-message" class="poc-verify-copy">
+            ${message.summary}
+        </p>
+        <div class="poc-verify-actions">
+            <#if pageRedirectUri?has_content>
+                <a id="poc-account-return" class="poc-verify-button poc-verify-button-primary" href="${pageRedirectUri}">กลับไปยังระบบ</a>
+            <#elseif actionUri?has_content>
+                <a id="poc-account-continue" class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
+            <#elseif (client.baseUrl)?has_content>
+                <a id="poc-account-return" class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
+            <#else>
+                <a id="poc-account-return" class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
+            </#if>
         </div>
     </@verify.page>
 <#else>

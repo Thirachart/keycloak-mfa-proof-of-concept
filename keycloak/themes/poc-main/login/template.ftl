@@ -99,80 +99,82 @@
     const isFirefox = true;
   </script>
 </head>
-<body id="keycloak-bg" class="${properties.kcBodyClass!} pattaya-inherited-page ${bodyClass}" data-page-id="login-${pageId}">
-  <div class="login-container">
-    <div class="login-left-panel" aria-hidden="true"></div>
-
-    <div class="login-right-panel">
-      <div class="login-form-wrapper">
-        <div class="login-header">
-          <h1 class="system-title-en">PATTAYA FINANCIAL AND ACCOUNTING SYSTEM</h1>
-          <h2 class="system-title-th">ระบบการเงินและบัญชีเมืองพัทยา</h2>
-        </div>
-
-        <section class="pattaya-flow-section" role="main">
-          <div class="pattaya-flow-heading-row">
-            <h3 class="update-password-title pattaya-flow-title" id="kc-page-title"><#nested "header"></h3>
-            <#if realm.internationalizationEnabled && locale.supported?size gt 1>
-              <select class="pattaya-language-select" aria-label="${msg("languages")}" id="login-select-toggle"
-                      onchange="if (this.value) window.location.href=this.value">
-                <#list locale.supported?sort_by("label") as l>
-                  <option value="${l.url}" ${(l.languageTag == locale.currentLanguageTag)?then('selected','')}>${l.label}</option>
-                </#list>
-              </select>
-            </#if>
-          </div>
-
-          <#if !(auth?has_content && auth.showUsername() && !auth.showResetCredentials())>
-            <#if displayRequiredFields>
-              <p class="pattaya-required-fields"><span aria-hidden="true">*</span> ${msg("requiredFields")}</p>
-            </#if>
-          <#else>
-            <#if displayRequiredFields>
-              <p class="pattaya-required-fields"><span aria-hidden="true">*</span> ${msg("requiredFields")}</p>
-            </#if>
-            <div class="pattaya-inherited-form pattaya-shown-username">
-              <#nested "show-username">
-              <@username />
-            </div>
-          </#if>
-
-          <#if displayMessage && message?has_content && (message.type != 'warning' || !isAppInitiatedAction??)>
-            <div class="alert-box pattaya-alert-${message.type!'info'}" role="alert">
-              <span class="kc-feedback-text">${message.summary}</span>
-            </div>
-          </#if>
-
-          <div class="pattaya-inherited-form">
-            <#nested "form">
-          </div>
-
-          <#if auth?has_content && auth.showTryAnotherWayLink()>
-            <form id="kc-select-try-another-way-form" class="pattaya-inherited-form" action="${url.loginAction}" method="post" novalidate="novalidate">
-              <input type="hidden" name="tryAnotherWay" value="on"/>
-              <a id="try-another-way" href="javascript:document.forms['kc-select-try-another-way-form'].requestSubmit()" class="btn-cancel pattaya-action-link">
-                ${msg("doTryAnotherWay")}
-              </a>
-            </form>
-          </#if>
-
-          <div class="pattaya-social-providers">
-            <#nested "socialProviders">
-          </div>
-
-          <#if displayInfo>
-            <div id="kc-info" class="pattaya-flow-info">
-              <#nested "info">
-            </div>
-          </#if>
-
-          <div class="pattaya-keycloak-footer">
-            <@loginFooter.content/>
-          </div>
-        </section>
+<body id="keycloak-bg" class="${properties.kcBodyClass!} pattaya-inherited-page poc-verify-body ${bodyClass}" data-page-id="login-${pageId}">
+  <main class="poc-verify-card poc-inherited-card" role="main">
+    <div class="poc-verify-brand">
+      <img class="poc-verify-logo" src="${url.resourcesPath}/img/newlogo.png" alt="PFAS" width="40" height="40" />
+      <div class="poc-verify-brand-copy">
+        <div class="poc-verify-brand-name">PFAS</div>
+        <div class="poc-verify-brand-subtitle">ระบบการเงินและบัญชีเมืองพัทยา</div>
       </div>
     </div>
-  </div>
+    <div class="poc-verify-divider"></div>
+
+    <section class="pattaya-flow-section" role="main">
+      <div class="pattaya-flow-heading-row">
+        <h1 class="poc-verify-title pattaya-flow-title" id="kc-page-title"><#nested "header"></h1>
+        <#if realm.internationalizationEnabled && locale.supported?size gt 1>
+          <select class="pattaya-language-select" aria-label="${msg("languages")}" id="login-select-toggle"
+                  onchange="if (this.value) window.location.href=this.value">
+            <#list locale.supported?sort_by("label") as l>
+              <option value="${l.url}" ${(l.languageTag == locale.currentLanguageTag)?then('selected','')}>${l.label}</option>
+            </#list>
+          </select>
+        </#if>
+      </div>
+
+      <#if !(auth?has_content && auth.showUsername() && !auth.showResetCredentials())>
+        <#if displayRequiredFields>
+          <p class="pattaya-required-fields"><span aria-hidden="true">*</span> ${msg("requiredFields")}</p>
+        </#if>
+      <#else>
+        <#if displayRequiredFields>
+          <p class="pattaya-required-fields"><span aria-hidden="true">*</span> ${msg("requiredFields")}</p>
+        </#if>
+        <div class="pattaya-inherited-form pattaya-shown-username">
+          <#nested "show-username">
+          <@username />
+        </div>
+      </#if>
+
+      <#if displayMessage && message?has_content && (message.type != 'warning' || !isAppInitiatedAction??)>
+        <div class="poc-card-message poc-card-message-${message.type!'info'}" role="alert">
+          <span class="kc-feedback-text">${message.summary}</span>
+        </div>
+      </#if>
+
+      <div class="pattaya-inherited-form">
+        <#nested "form">
+      </div>
+
+      <#if auth?has_content && auth.showTryAnotherWayLink()>
+        <form id="kc-select-try-another-way-form" class="pattaya-inherited-form" action="${url.loginAction}" method="post" novalidate="novalidate">
+          <input type="hidden" name="tryAnotherWay" value="on"/>
+          <a id="try-another-way" href="javascript:document.forms['kc-select-try-another-way-form'].requestSubmit()" class="poc-verify-button poc-verify-button-secondary pattaya-action-link">
+            ${msg("doTryAnotherWay")}
+          </a>
+        </form>
+      </#if>
+
+      <div class="pattaya-social-providers">
+        <#nested "socialProviders">
+      </div>
+
+      <#if displayInfo>
+        <div id="kc-info" class="pattaya-flow-info">
+          <#nested "info">
+        </div>
+      </#if>
+
+      <div class="pattaya-keycloak-footer">
+        <@loginFooter.content/>
+      </div>
+    </section>
+
+    <div class="poc-verify-divider poc-verify-divider-footer"></div>
+    <p class="poc-verify-note">หากท่านไม่ได้เป็นผู้ทำรายการนี้ กรุณาเพิกเฉยและไม่ต้องดำเนินการใด ๆ เพิ่มเติม</p>
+  </main>
+  <footer class="poc-verify-footer">&copy; เมืองพัทยา &middot; ระบบการเงินและบัญชีเมืองพัทยา (PFAS)</footer>
 </body>
 </html>
 </#macro>

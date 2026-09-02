@@ -107,8 +107,10 @@ The implementation must delegate credential changes to Keycloak. The application
 
 - user clicks `เปลี่ยนรหัสผ่าน` from the authenticated page
 - verify visual appearance in browser
-- optionally change the password manually, confirm the new password works, and confirm the previous password no longer works
-- test cancel and confirm no credential change
+- change the password and confirm Keycloak AIA returns through oauth2-proxy to the authenticated frontend
+- after successful return, frontend shows `เปลี่ยนรหัสผ่านเรียบร้อยแล้ว` once
+- test cancel and confirm no success banner and no credential change
+- validation errors remain on the Keycloak card and do not create a false success banner
 
 ## Implementation status
 
@@ -119,6 +121,10 @@ Implemented:
 - oauth2-proxy allow-list now includes only `VERIFY_EMAIL`, `UPDATE_EMAIL`, and `UPDATE_PASSWORD`
 - the flow reuses the existing PATTAYA `login-update-password.ftl`; no duplicate password template or backend endpoint was added
 - `UPDATE_PASSWORD` remains the same Keycloak required action used by Reset Password and Phase 2 forced-password expiry
+- Keycloak AIA success does not render an intermediate `info.ftl` page; Keycloak returns `kc_action=UPDATE_PASSWORD&kc_action_status=success` to oauth2-proxy and oauth2-proxy then redirects to the stored `rd` destination
+- because oauth2-proxy consumes the callback query and does not expose `kc_action_status` on the final frontend URL, the app-initiated password page writes a short-lived shared `poc_password_aia_state` cookie only for this AIA: `submitted`, `cancelled`, or `error`
+- the authenticated frontend consumes that cookie once; only `submitted` shows the Thai success banner, while cancel/error states are cleared without showing success
+- the cookie is host-scoped on localhost and uses `Domain=.pfas.pattaya.go.th` on PFAS production subdomains so `auth.pfas.pattaya.go.th` and `pfas.pattaya.go.th` can share the one-time result
 
 Runtime validation completed:
 
@@ -128,4 +134,5 @@ Runtime validation completed:
 - cancel returned to the authenticated application
 - existing `demo1234` password still authenticated after cancel, confirming cancellation did not change the credential
 - an unlisted example `kc_action=DELETE_ACCOUNT` was stripped from the oauth2-proxy authorization redirect rather than forwarded to Keycloak
-- automated tests did not submit a replacement password; actual password replacement remains a manual acceptance step
+- browser/oauth2-proxy logs confirm successful `UPDATE_PASSWORD` AIA callbacks include `kc_action_status=success`, while cancel callbacks include `kc_action_status=cancelled`
+- frontend now exposes a one-time password-change success banner driven by the AIA state cookie rather than assuming every return is successful

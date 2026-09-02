@@ -271,5 +271,37 @@ Expected:
 - password values are posted only to Keycloak; no PoC frontend/backend endpoint receives them
 - Thai validation/password-policy messages remain consistent with the local theme
 - cancel does not change credentials
+- successful app-initiated Change Password returns through oauth2-proxy to the authenticated frontend and shows one Thai `เปลี่ยนรหัสผ่านเรียบร้อยแล้ว` banner; Keycloak AIA does not require an intermediate success page
+- cancel or validation-error paths must not show the frontend success banner
 - existing Forgot Password reset and Phase 2 forced-expiry password changes continue to use the same `UPDATE_PASSWORD` required action successfully
 - oauth2-proxy does not forward arbitrary `kc_action` values outside `VERIFY_EMAIL`, `UPDATE_EMAIL`, and `UPDATE_PASSWORD`; unlisted values are stripped from the authorization redirect
+
+## TC-19 Non-login PFAS card shell
+
+Reference: `docs/non-login-card-theme.md`.
+
+Expected shell split:
+
+- primary Login remains the production two-panel layout with `login-img.png`
+- Update Email remains on the existing `verify-layout.ftl` PFAS card
+- MFA selector, Email OTP, Change/Reset/forced password, Forgot Password, Update Profile, broker/linking and other reachable inherited pages use the centered PFAS card shell
+- no converted non-login page renders `login-left-panel`
+
+Regression requirements:
+
+- Login form contract remains unchanged
+- MFA selector preserves `mfa_method=email`
+- Email OTP preserves `emailCode` plus `login`, `resend`, and `cancel` submit names
+- password update preserves `password-new`, `password-confirm`, and AIA `cancel-aia=true`
+- shared `template.ftl` preserves Keycloak auth/session scripts, nested sections, required-field behavior, try-another-way form, and parent macro contract
+- existing Verify Email / Update Email card pages remain structurally unchanged
+- no FreeMarker processing errors appear in the Keycloak log
+
+Runtime checks performed during implementation:
+
+- Login: two-panel shell retained
+- Forgot Password: `poc-verify-card` + `kc-reset-password-form`, no left panel
+- MFA selector: `poc-verify-card` + `kc-mfa-method-selector-form`, no left panel
+- Email OTP: `poc-verify-card` + `kc-otp-login-form`, no left panel
+- Reset Password action-token: `poc-verify-card` + `password-new` + `password-confirm`, no left panel
+- temporary runtime users used for smoke tests were deleted after each test

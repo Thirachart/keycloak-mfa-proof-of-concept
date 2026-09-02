@@ -9,12 +9,14 @@
     .card{background:white;border:1px solid #ddd;border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:0 4px 18px #0000000d}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.item{padding:14px;border:1px solid #e5e5e5;border-radius:12px}.label{font-size:13px;color:#666;margin-bottom:6px}.value{font-weight:650;word-break:break-word}
     .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#eee;font-weight:650}.ok{background:#dff6e5}.warn{background:#fff1c9}
+    .notice{display:none;margin:0 0 18px;padding:12px 14px;border:1px solid #bbf7d0;border-radius:12px;background:#f0fdf4;color:#166534;font-weight:650}.notice.show{display:block}
     .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.button{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:0;border-radius:10px;background:#222;color:white;text-decoration:none;font:inherit;line-height:1.2;cursor:pointer}.button.secondary{background:#ececec;color:#222}.button:hover{filter:brightness(.96)}.button:focus-visible{outline:3px solid #2223;outline-offset:2px}
     pre{white-space:pre-wrap;word-break:break-word;background:#111;color:#eee;padding:16px;border-radius:12px;overflow:auto}
   </style>
 </head>
 <body>
   <h1>Email 2FA PoC</h1>
+  <div id="passwordChangeNotice" class="notice" role="status">เปลี่ยนรหัสผ่านเรียบร้อยแล้ว</div>
   <div class="card">
     <div class="grid">
       <div class="item"><div class="label">User</div><div id="identity" class="value">loading...</div></div>
@@ -46,6 +48,32 @@ function formatTimestamp(value) {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
 }
+
+function sharedCookieSuffix() {
+  let suffix = '; Path=/; SameSite=Lax';
+  const host = window.location.hostname;
+  if (window.location.protocol === 'https:') suffix += '; Secure';
+  if (host === 'pfas.pattaya.go.th' || host.endsWith('.pfas.pattaya.go.th')) {
+    suffix += '; Domain=.pfas.pattaya.go.th';
+  }
+  return suffix;
+}
+
+function readCookie(name) {
+  const prefix = `${name}=`;
+  return document.cookie.split(';').map(value => value.trim()).find(value => value.startsWith(prefix))?.slice(prefix.length) || '';
+}
+
+function consumePasswordAiaState() {
+  const cookieName = 'poc_password_aia_state';
+  const state = decodeURIComponent(readCookie(cookieName) || '');
+  if (state === 'submitted') {
+    document.getElementById('passwordChangeNotice')?.classList.add('show');
+  }
+  document.cookie = `${cookieName}=; Max-Age=0${sharedCookieSuffix()}`;
+}
+
+consumePasswordAiaState();
 
 (async () => {
   try {
