@@ -33,6 +33,7 @@
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
+      "baseUrl": "http://localhost:8000",
       "redirectUris": ["http://localhost:8000/oauth2/callback"],
       "webOrigins": ["http://localhost:8000"],
       "attributes": {

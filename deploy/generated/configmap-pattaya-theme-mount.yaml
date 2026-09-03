@@ -27,6 +27,8 @@ volumes:
           path: email/text/password-reset.ftl
         - key: email__theme.properties
           path: email/theme.properties
+        - key: login__app-links.ftl
+          path: login/app-links.ftl
         - key: login__email-code-form.ftl
           path: login/email-code-form.ftl
         - key: login__error.ftl

@@ -1,6 +1,6 @@
 [
   {
-    "op": "add",
+    "op": "replace",
     "path": "/spec/template/spec/volumes/0/configMap/items",
     "value": [
       {
@@ -46,6 +46,10 @@
       {
         "key": "email__theme.properties",
         "path": "email/theme.properties"
+      },
+      {
+        "key": "login__app-links.ftl",
+        "path": "login/app-links.ftl"
       },
       {
         "key": "login__email-code-form.ftl",

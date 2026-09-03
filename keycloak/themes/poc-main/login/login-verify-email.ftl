@@ -1,4 +1,5 @@
 <#import "verify-layout.ftl" as verify>
+<#import "app-links.ftl" as app>
 <@verify.page title="ยืนยันอีเมลของคุณ">
     <#assign targetEmail = (verifyEmail!user.email)!"">
 
@@ -24,7 +25,7 @@
                         ส่งอีเมลยืนยัน
                     </button>
                 </#if>
-                <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${properties.pocUpdateEmailUrl}">
+                <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
                     เปลี่ยนอีเมล
                 </a>
                 <button id="poc-verify-cancel" class="poc-verify-button poc-verify-button-secondary" type="submit" name="cancel-aia" value="true" formnovalidate>
@@ -40,7 +41,7 @@
             <a id="poc-verify-resend" class="poc-verify-button poc-verify-button-primary" href="${url.loginAction}">
                 ส่งอีเมลยืนยันอีกครั้ง
             </a>
-            <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${properties.pocUpdateEmailUrl}">
+            <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
                 เปลี่ยนอีเมล
             </a>
         </div>

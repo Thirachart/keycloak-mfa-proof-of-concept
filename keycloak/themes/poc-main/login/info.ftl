@@ -1,4 +1,6 @@
+<#import "app-links.ftl" as app>
 <#assign isVerifyEmailInfo = messageHeader?? && (messageHeader == "confirmEmailAddressVerificationHeader" || messageHeader == msg("confirmEmailAddressVerificationHeader"))>
+<#assign isEmailVerifiedDone = messageHeader?? && (messageHeader == "emailVerifiedMessageHeader" || messageHeader == "emailVerifiedAlreadyMessageHeader" || messageHeader == msg("emailVerifiedMessageHeader") || messageHeader == msg("emailVerifiedAlreadyMessageHeader"))>
 <#assign isEmailUpdateSent = messageHeader?? && (messageHeader == "emailUpdateConfirmationSentTitle" || messageHeader == msg("emailUpdateConfirmationSentTitle"))>
 <#assign isEmailUpdated = messageHeader?? && (messageHeader == "emailUpdatedTitle" || messageHeader == msg("emailUpdatedTitle"))>
 <#assign isAccountUpdated = messageHeader?? && (messageHeader == "accountUpdatedTitle" || messageHeader == msg("accountUpdatedTitle"))>
@@ -17,7 +19,7 @@
                 <a id="poc-verify-proceed" class="poc-verify-button poc-verify-button-primary" href="${actionUri}" data-once-link>
                     ยืนยันอีเมล
                 </a>
-                <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${properties.pocUpdateEmailUrl}">
+                <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
                     เปลี่ยนอีเมล
                 </a>
             </div>
@@ -29,6 +31,24 @@
             </div>
         </#if>
     </@verify.page>
+<#elseif isEmailVerifiedDone>
+    <#import "verify-layout.ftl" as verify>
+    <@verify.page title="ยืนยันอีเมลสำเร็จ">
+        <p id="poc-email-verified-message" class="poc-verify-copy">
+            ${message.summary}
+        </p>
+        <div class="poc-verify-actions">
+            <#if pageRedirectUri?has_content>
+                <a class="poc-verify-button poc-verify-button-primary" href="${pageRedirectUri}">กลับไปยังระบบ</a>
+            <#elseif actionUri?has_content>
+                <a class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
+            <#elseif (client.baseUrl)?has_content>
+                <a class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
+            <#else>
+                <a class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
+            </#if>
+        </div>
+    </@verify.page>
 <#elseif isEmailUpdateSent>
     <#import "verify-layout.ftl" as verify>
     <@verify.page title="${msg('emailUpdateConfirmationSentTitle')}">
@@ -39,7 +59,7 @@
             กรุณาเปิดอีเมลใหม่และกดลิงก์ยืนยันเพื่อให้การเปลี่ยนอีเมลเสร็จสมบูรณ์
         </p>
         <div class="poc-verify-actions">
-            <a id="poc-change-email-again" class="poc-verify-button poc-verify-button-secondary" href="${properties.pocUpdateEmailUrl}">
+            <a id="poc-change-email-again" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
                 เปลี่ยนอีเมลอีกครั้ง
             </a>
             <#if pageRedirectUri?has_content>
@@ -78,7 +98,7 @@
             รหัสผ่านของคุณได้รับการเปลี่ยนเรียบร้อยแล้ว กรุณาเข้าสู่ระบบอีกครั้งด้วยรหัสผ่านใหม่
         </p>
         <div class="poc-verify-actions">
-            <a id="poc-password-login" class="poc-verify-button poc-verify-button-primary" href="${properties.pocLoginUrl}">
+            <a id="poc-password-login" class="poc-verify-button poc-verify-button-primary" href="${app.appLoginUrl()}">
                 เข้าสู่ระบบด้วยรหัสผ่านใหม่
             </a>
         </div>
