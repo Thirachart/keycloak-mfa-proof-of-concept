@@ -48,6 +48,7 @@
                     </div>
 
                     <div class="form-options-group">
+                        <#-- Remember Me and Forgot Password are hidden for now — see docs/design-decisions.md #9.
                         <#if realm.rememberMe && !usernameHidden??>
                             <div class="checkbox-item">
                                 <label>
@@ -65,6 +66,7 @@
                                 <a href="${url.loginResetCredentialsUrl}">${msg("doForgotPassword")}</a>
                             </div>
                         </#if>
+                        -->
                     </div>
 
                     <div class="form-group">

@@ -42,9 +42,15 @@
             <a id="poc-change-email-again" class="poc-verify-button poc-verify-button-secondary" href="${properties.pocUpdateEmailUrl}">
                 เปลี่ยนอีเมลอีกครั้ง
             </a>
-            <a class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">
-                กลับไปยังระบบ
-            </a>
+            <#if pageRedirectUri?has_content>
+                <a class="poc-verify-button poc-verify-button-primary" href="${pageRedirectUri}">กลับไปยังระบบ</a>
+            <#elseif actionUri?has_content>
+                <a class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
+            <#elseif (client.baseUrl)?has_content>
+                <a class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
+            <#else>
+                <a class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
+            </#if>
         </div>
     </@verify.page>
 <#elseif isEmailUpdated>
@@ -54,9 +60,15 @@
             ${message.summary}
         </p>
         <div class="poc-verify-actions">
-            <a class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">
-                กลับไปยังระบบ
-            </a>
+            <#if pageRedirectUri?has_content>
+                <a class="poc-verify-button poc-verify-button-primary" href="${pageRedirectUri}">กลับไปยังระบบ</a>
+            <#elseif actionUri?has_content>
+                <a class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
+            <#elseif (client.baseUrl)?has_content>
+                <a class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
+            <#else>
+                <a class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
+            </#if>
         </div>
     </@verify.page>
 <#elseif isPasswordResetCompleted>

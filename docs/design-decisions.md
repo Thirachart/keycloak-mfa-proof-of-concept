@@ -63,4 +63,12 @@ Host ports used by this PoC:
 - Keycloak: 18080 -> container 8080
 - Mailpit UI: 18025 -> container 8025
 
+## 9. Remember Me and Forgot Password are hidden on the login page
+
+Decision: `login.ftl` no longer renders the "Remember Me" checkbox or the "Forgot Password" link on the username/password form.
+
+Reason: Requested to be hidden for now (2026-09-03), not a removal of the underlying feature — Keycloak's `realm.rememberMe` / `realm.resetPasswordAllowed` behavior and the `/login-actions/reset-credentials` flow are untouched.
+
+Implementation: The two blocks are wrapped in an FTL comment (`<#-- ... -->`) inside the `form-options-group` div in `keycloak/themes/poc-main/login/login.ftl`, not deleted — remove the comment markers to restore them.
+
 The non-default Keycloak/Mailpit host ports avoid collisions with services already running on the development machine. Container-to-container ports remain standard.
