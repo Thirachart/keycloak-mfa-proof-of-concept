@@ -71,4 +71,12 @@ Reason: Requested to be hidden for now (2026-09-03), not a removal of the underl
 
 Implementation: The two blocks are wrapped in an FTL comment (`<#-- ... -->`) inside the `form-options-group` div in `keycloak/themes/poc-main/login/login.ftl`, not deleted — remove the comment markers to restore them.
 
+## 10. Theme/ConfigMap must never hardcode an environment URL
+
+Decision: No `.ftl` or `theme.properties` file under `keycloak/themes/poc-main` may hardcode an absolute domain (`localhost:8000`, `pfas-playground.local.pitsdev.com`, a future prod hostname, etc.). Every "return to app" / "start a new AIA flow" link is derived at render time from Keycloak's own request context — in priority order: `pageRedirectUri`, then `actionUri`, then `client.baseUrl` (the Client's **Home URL** field in Keycloak Admin). If none of those have content, the link/button is simply not rendered — there is no hardcoded last-resort domain.
+
+Reason: This ConfigMap is generated once from `keycloak/themes/poc-main` and deployed unchanged to every environment (local docker-compose, the playground test cluster, and eventually prod). An early version of this theme hardcoded `pocAppBaseUrl`/`pocLoginUrl`/`pocUpdateEmailUrl` in `theme.properties`, which meant every environment switch required editing and redeploying the ConfigMap — and briefly caused local testing to redirect to the playground domain by accident. Moving environment identity entirely into Keycloak Admin (`Home URL`, one client setting) means the same generated ConfigMap works everywhere with zero edits.
+
+Implementation: `keycloak/themes/poc-main/login/app-links.ftl` builds oauth2-proxy `/oauth2/start` links from `client.baseUrl` only, returning `""` (not a fallback domain) when it's empty; callers check `(client.baseUrl)?has_content` before rendering. `info.ftl`'s several "กลับไปยังระบบ" buttons follow the same `pageRedirectUri → actionUri → client.baseUrl` chain with no final hardcoded `<#else>`. **Whenever regenerating `deploy/generated/configmap-pattaya-theme.yaml`, verify this still holds** (`grep -rn "http://\|https://" keycloak/themes/poc-main` should show no environment domains) — every environment (including a new prod deployment) only needs its Client's Home URL set once in Keycloak Admin, never a ConfigMap edit.
+
 The non-default Keycloak/Mailpit host ports avoid collisions with services already running on the development machine. Container-to-container ports remain standard.

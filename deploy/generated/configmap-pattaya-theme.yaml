@@ -290,8 +290,9 @@ data:
   login__app-links.ftl: |-
     <#-- Builds oauth2-proxy "start" links from the client's Home URL (Keycloak Admin > Clients > Home URL)
          instead of a hardcoded per-environment domain, so changing environments only means updating
-         that one Keycloak setting — not the theme ConfigMap. Falls back to the theme.properties values
-         only when no client context is available (client.baseUrl empty). -->
+         that one Keycloak setting — never the theme ConfigMap. There is deliberately no hardcoded
+         domain fallback here: callers must check (client.baseUrl)?has_content themselves and skip
+         rendering the link/button when it's empty. -->
     
     <#function appBaseUrlNoTrailingSlash>
         <#if client.baseUrl?ends_with("/")>
@@ -306,7 +307,7 @@ data:
             <#local base = appBaseUrlNoTrailingSlash()>
             <#return base + "/oauth2/start?rd=" + (base + "/")?url("UTF-8")>
         <#else>
-            <#return properties.pocLoginUrl>
+            <#return "">
         </#if>
     </#function>
     
@@ -315,7 +316,7 @@ data:
             <#local base = appBaseUrlNoTrailingSlash()>
             <#return base + "/oauth2/start?rd=" + (base + "/")?url("UTF-8") + "&kc_action=UPDATE_EMAIL">
         <#else>
-            <#return properties.pocUpdateEmailUrl>
+            <#return "">
         </#if>
     </#function>
   login__email-code-form.ftl: |-
@@ -422,9 +423,11 @@ data:
                     <a id="poc-verify-proceed" class="poc-verify-button poc-verify-button-primary" href="${actionUri}" data-once-link>
                         ยืนยันอีเมล
                     </a>
-                    <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
-                        เปลี่ยนอีเมล
-                    </a>
+                    <#if (client.baseUrl)?has_content>
+                        <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
+                            เปลี่ยนอีเมล
+                        </a>
+                    </#if>
                 </div>
             <#elseif pageRedirectUri?has_content>
                 <div class="poc-verify-actions">
@@ -447,8 +450,6 @@ data:
                     <a class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
                 <#elseif (client.baseUrl)?has_content>
                     <a class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
-                <#else>
-                    <a class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
                 </#if>
             </div>
         </@verify.page>
@@ -462,17 +463,17 @@ data:
                 กรุณาเปิดอีเมลใหม่และกดลิงก์ยืนยันเพื่อให้การเปลี่ยนอีเมลเสร็จสมบูรณ์
             </p>
             <div class="poc-verify-actions">
-                <a id="poc-change-email-again" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
-                    เปลี่ยนอีเมลอีกครั้ง
-                </a>
+                <#if (client.baseUrl)?has_content>
+                    <a id="poc-change-email-again" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
+                        เปลี่ยนอีเมลอีกครั้ง
+                    </a>
+                </#if>
                 <#if pageRedirectUri?has_content>
                     <a class="poc-verify-button poc-verify-button-primary" href="${pageRedirectUri}">กลับไปยังระบบ</a>
                 <#elseif actionUri?has_content>
                     <a class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
                 <#elseif (client.baseUrl)?has_content>
                     <a class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
-                <#else>
-                    <a class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
                 </#if>
             </div>
         </@verify.page>
@@ -489,8 +490,6 @@ data:
                     <a class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
                 <#elseif (client.baseUrl)?has_content>
                     <a class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
-                <#else>
-                    <a class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
                 </#if>
             </div>
         </@verify.page>
@@ -501,9 +500,11 @@ data:
                 รหัสผ่านของคุณได้รับการเปลี่ยนเรียบร้อยแล้ว กรุณาเข้าสู่ระบบอีกครั้งด้วยรหัสผ่านใหม่
             </p>
             <div class="poc-verify-actions">
-                <a id="poc-password-login" class="poc-verify-button poc-verify-button-primary" href="${app.appLoginUrl()}">
-                    เข้าสู่ระบบด้วยรหัสผ่านใหม่
-                </a>
+                <#if (client.baseUrl)?has_content>
+                    <a id="poc-password-login" class="poc-verify-button poc-verify-button-primary" href="${app.appLoginUrl()}">
+                        เข้าสู่ระบบด้วยรหัสผ่านใหม่
+                    </a>
+                </#if>
             </div>
         </@verify.page>
     <#elseif isPasswordUpdated>
@@ -519,8 +520,6 @@ data:
                     <a id="poc-password-continue" class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
                 <#elseif (client.baseUrl)?has_content>
                     <a id="poc-password-return" class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
-                <#else>
-                    <a id="poc-password-return" class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
                 </#if>
             </div>
         </@verify.page>
@@ -537,8 +536,6 @@ data:
                     <a id="poc-account-continue" class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
                 <#elseif (client.baseUrl)?has_content>
                     <a id="poc-account-return" class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
-                <#else>
-                    <a id="poc-account-return" class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
                 </#if>
             </div>
         </@verify.page>
@@ -818,9 +815,11 @@ data:
                             ส่งอีเมลยืนยัน
                         </button>
                     </#if>
-                    <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
-                        เปลี่ยนอีเมล
-                    </a>
+                    <#if (client.baseUrl)?has_content>
+                        <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
+                            เปลี่ยนอีเมล
+                        </a>
+                    </#if>
                     <button id="poc-verify-cancel" class="poc-verify-button poc-verify-button-secondary" type="submit" name="cancel-aia" value="true" formnovalidate>
                         ยกเลิก
                     </button>
@@ -834,9 +833,11 @@ data:
                 <a id="poc-verify-resend" class="poc-verify-button poc-verify-button-primary" href="${url.loginAction}">
                     ส่งอีเมลยืนยันอีกครั้ง
                 </a>
-                <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
-                    เปลี่ยนอีเมล
-                </a>
+                <#if (client.baseUrl)?has_content>
+                    <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
+                        เปลี่ยนอีเมล
+                    </a>
+                </#if>
             </div>
         </#if>
     </@verify.page>
@@ -2204,9 +2205,6 @@ data:
   login__theme.properties: |-
     parent=keycloak.v2
     styles=css/poc.css css/pattaya-login.css
-    pocAppBaseUrl=https://pfas-playground.local.pitsdev.com
-    pocLoginUrl=https://pfas-playground.local.pitsdev.com/oauth2/start?rd=https%3A%2F%2Fpfas-playground.local.pitsdev.com%2F
-    pocUpdateEmailUrl=https://pfas-playground.local.pitsdev.com/oauth2/start?rd=https%3A%2F%2Fpfas-playground.local.pitsdev.com%2F&kc_action=UPDATE_EMAIL
   login__update-email.ftl: |-
     <#import "verify-layout.ftl" as verify>
     <#import "user-profile-commons.ftl" as userProfileCommons>

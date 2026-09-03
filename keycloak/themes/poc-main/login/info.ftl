@@ -19,9 +19,11 @@
                 <a id="poc-verify-proceed" class="poc-verify-button poc-verify-button-primary" href="${actionUri}" data-once-link>
                     ยืนยันอีเมล
                 </a>
-                <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
-                    เปลี่ยนอีเมล
-                </a>
+                <#if (client.baseUrl)?has_content>
+                    <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
+                        เปลี่ยนอีเมล
+                    </a>
+                </#if>
             </div>
         <#elseif pageRedirectUri?has_content>
             <div class="poc-verify-actions">
@@ -44,8 +46,6 @@
                 <a class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
             <#elseif (client.baseUrl)?has_content>
                 <a class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
-            <#else>
-                <a class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
             </#if>
         </div>
     </@verify.page>
@@ -59,17 +59,17 @@
             กรุณาเปิดอีเมลใหม่และกดลิงก์ยืนยันเพื่อให้การเปลี่ยนอีเมลเสร็จสมบูรณ์
         </p>
         <div class="poc-verify-actions">
-            <a id="poc-change-email-again" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
-                เปลี่ยนอีเมลอีกครั้ง
-            </a>
+            <#if (client.baseUrl)?has_content>
+                <a id="poc-change-email-again" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
+                    เปลี่ยนอีเมลอีกครั้ง
+                </a>
+            </#if>
             <#if pageRedirectUri?has_content>
                 <a class="poc-verify-button poc-verify-button-primary" href="${pageRedirectUri}">กลับไปยังระบบ</a>
             <#elseif actionUri?has_content>
                 <a class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
             <#elseif (client.baseUrl)?has_content>
                 <a class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
-            <#else>
-                <a class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
             </#if>
         </div>
     </@verify.page>
@@ -86,8 +86,6 @@
                 <a class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
             <#elseif (client.baseUrl)?has_content>
                 <a class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
-            <#else>
-                <a class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
             </#if>
         </div>
     </@verify.page>
@@ -98,9 +96,11 @@
             รหัสผ่านของคุณได้รับการเปลี่ยนเรียบร้อยแล้ว กรุณาเข้าสู่ระบบอีกครั้งด้วยรหัสผ่านใหม่
         </p>
         <div class="poc-verify-actions">
-            <a id="poc-password-login" class="poc-verify-button poc-verify-button-primary" href="${app.appLoginUrl()}">
-                เข้าสู่ระบบด้วยรหัสผ่านใหม่
-            </a>
+            <#if (client.baseUrl)?has_content>
+                <a id="poc-password-login" class="poc-verify-button poc-verify-button-primary" href="${app.appLoginUrl()}">
+                    เข้าสู่ระบบด้วยรหัสผ่านใหม่
+                </a>
+            </#if>
         </div>
     </@verify.page>
 <#elseif isPasswordUpdated>
@@ -116,8 +116,6 @@
                 <a id="poc-password-continue" class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
             <#elseif (client.baseUrl)?has_content>
                 <a id="poc-password-return" class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
-            <#else>
-                <a id="poc-password-return" class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
             </#if>
         </div>
     </@verify.page>
@@ -134,8 +132,6 @@
                 <a id="poc-account-continue" class="poc-verify-button poc-verify-button-primary" href="${actionUri}">ดำเนินการต่อ</a>
             <#elseif (client.baseUrl)?has_content>
                 <a id="poc-account-return" class="poc-verify-button poc-verify-button-primary" href="${client.baseUrl}">กลับไปยังระบบ</a>
-            <#else>
-                <a id="poc-account-return" class="poc-verify-button poc-verify-button-primary" href="${properties.pocAppBaseUrl}/">กลับไปยังระบบ</a>
             </#if>
         </div>
     </@verify.page>

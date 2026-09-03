@@ -1,7 +1,8 @@
 <#-- Builds oauth2-proxy "start" links from the client's Home URL (Keycloak Admin > Clients > Home URL)
      instead of a hardcoded per-environment domain, so changing environments only means updating
-     that one Keycloak setting — not the theme ConfigMap. Falls back to the theme.properties values
-     only when no client context is available (client.baseUrl empty). -->
+     that one Keycloak setting — never the theme ConfigMap. There is deliberately no hardcoded
+     domain fallback here: callers must check (client.baseUrl)?has_content themselves and skip
+     rendering the link/button when it's empty. -->
 
 <#function appBaseUrlNoTrailingSlash>
     <#if client.baseUrl?ends_with("/")>
@@ -16,7 +17,7 @@
         <#local base = appBaseUrlNoTrailingSlash()>
         <#return base + "/oauth2/start?rd=" + (base + "/")?url("UTF-8")>
     <#else>
-        <#return properties.pocLoginUrl>
+        <#return "">
     </#if>
 </#function>
 
@@ -25,6 +26,6 @@
         <#local base = appBaseUrlNoTrailingSlash()>
         <#return base + "/oauth2/start?rd=" + (base + "/")?url("UTF-8") + "&kc_action=UPDATE_EMAIL">
     <#else>
-        <#return properties.pocUpdateEmailUrl>
+        <#return "">
     </#if>
 </#function>

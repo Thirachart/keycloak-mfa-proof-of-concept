@@ -25,9 +25,11 @@
                         ส่งอีเมลยืนยัน
                     </button>
                 </#if>
-                <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
-                    เปลี่ยนอีเมล
-                </a>
+                <#if (client.baseUrl)?has_content>
+                    <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
+                        เปลี่ยนอีเมล
+                    </a>
+                </#if>
                 <button id="poc-verify-cancel" class="poc-verify-button poc-verify-button-secondary" type="submit" name="cancel-aia" value="true" formnovalidate>
                     ยกเลิก
                 </button>
@@ -41,9 +43,11 @@
             <a id="poc-verify-resend" class="poc-verify-button poc-verify-button-primary" href="${url.loginAction}">
                 ส่งอีเมลยืนยันอีกครั้ง
             </a>
-            <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
-                เปลี่ยนอีเมล
-            </a>
+            <#if (client.baseUrl)?has_content>
+                <a id="poc-change-email" class="poc-verify-button poc-verify-button-secondary" href="${app.appUpdateEmailUrl()}">
+                    เปลี่ยนอีเมล
+                </a>
+            </#if>
         </div>
     </#if>
 </@verify.page>
